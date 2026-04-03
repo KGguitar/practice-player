@@ -1,1 +1,908 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎸 Practice Player v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* §0 RESET & TOKENS */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#101012;--sf:#1a1a1f;--sf2:#242429;--bd:#2e2e36;
+  --tx:#e8e8ec;--tx2:#88889a;--ac:#f97316;--ac2:#fdba74;
+  --grn:#34d399;--red:#f87171;--blu:#60a5fa;--pur:#c084fc;
+  --mono:'IBM Plex Mono',monospace;--sans:'Outfit',system-ui,sans-serif;
+}
+html{background:var(--bg);color:var(--tx);font-family:var(--sans)}
+body{padding:10px 14px 20px;max-width:1280px;margin:0 auto}
 
+/* §1 HEADER */
+.hdr{text-align:center;margin-bottom:8px}
+.hdr h1{font-family:var(--mono);font-size:20px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ac)}
+
+/* §2 URL BAR */
+.url-bar{display:flex;gap:8px;margin-bottom:10px}
+@media(min-width:1101px){.url-bar{margin-left:calc(240px + 12px);margin-right:calc(320px + 12px)}}
+.url-wrap{flex:1;position:relative;display:flex;align-items:center}
+.url-in{width:100%;background:var(--sf);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-family:var(--mono);font-size:14px;padding:10px 34px 10px 12px;outline:none}
+.url-in:focus{border-color:var(--ac)}
+.url-in::placeholder{color:var(--tx2);opacity:.5}
+.url-clear{position:absolute;right:6px;background:none;border:none;color:var(--tx2);font-size:16px;cursor:pointer;padding:4px 6px;border-radius:4px;line-height:1;display:none;-webkit-tap-highlight-color:transparent}
+.url-clear:hover{color:var(--red)}
+.url-clear.show{display:block}
+.btn-bk-star{font-size:34px;padding:2px 16px;min-height:48px;min-width:54px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;color:var(--tx2);cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;line-height:1}
+.btn-bk-star:hover:not(:disabled){color:#fbbf24;border-color:#fbbf24;background:#2a2a22}
+.btn-bk-star:active:not(:disabled){transform:scale(.9);color:#fbbf24}
+.btn-bk-star:disabled{opacity:.3;cursor:not-allowed}
+.btn-bk-star.saved{color:#fbbf24;border-color:#fbbf24}
+
+/* §3 GRID */
+.grid{display:grid;grid-template-columns:240px 1fr 320px;gap:12px;max-height:calc(100vh - 120px)}
+@media(max-width:1100px){.grid{grid-template-columns:1fr;max-height:none}}
+.stack{display:flex;flex-direction:column;gap:8px}
+.col-scroll{overflow-y:auto;max-height:calc(100vh - 120px)}
+@media(max-width:1100px){.col-scroll{max-height:none;overflow-y:visible}}
+
+/* §4 CARD & BUTTON */
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:12px 14px}
+.card-t{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--tx);margin-bottom:8px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;border:1px solid var(--bd);border-radius:8px;background:var(--sf2);color:var(--tx);font-family:var(--sans);font-size:14px;font-weight:600;padding:9px 13px;cursor:pointer;user-select:none;white-space:nowrap;min-height:42px;transition:all .1s;-webkit-tap-highlight-color:transparent}
+.btn:hover:not(:disabled){background:#32323e;border-color:var(--ac)}
+.btn:active:not(:disabled){transform:scale(.96)}
+.btn:disabled{opacity:.3;cursor:not-allowed}
+.btn-a{background:var(--ac);border-color:var(--ac);color:#fff}
+.btn-a:hover:not(:disabled){background:var(--ac2);border-color:var(--ac2);color:#000}
+.btn-s{padding:6px 10px;font-size:13px;min-height:32px}
+.row{display:flex;gap:5px;flex-wrap:wrap}
+.rowc{justify-content:center}
+
+/* §5 EMBED */
+#embed-wrap{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:10px;overflow:hidden;margin-bottom:8px}
+#embed-wrap iframe{position:absolute!important;top:0!important;left:0!important;width:100%!important;height:100%!important;border:none!important}
+.embed-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--tx2);gap:4px;z-index:2}
+.embed-ph b{font-size:40px;opacity:.35}
+.embed-ph span{font-size:14px}
+.vid-title{font-size:13px;color:var(--tx2);margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* §6 SEEKBAR */
+.seek-w{position:relative;height:32px;display:flex;align-items:center;margin-bottom:2px;cursor:pointer;touch-action:none}
+.seek-w.disabled{opacity:.3;cursor:not-allowed;pointer-events:none}
+.seek-t{position:relative;width:100%;height:8px;background:var(--sf2);border-radius:4px}
+.seek-f{position:absolute;left:0;top:0;height:100%;background:var(--ac);border-radius:4px;pointer-events:none}
+.seek-ab{position:absolute;top:0;height:100%;background:rgba(192,132,252,.25);pointer-events:none}
+.seek-mk{position:absolute;top:-4px;width:3px;height:16px;border-radius:1px;pointer-events:none}
+.seek-ma{background:var(--grn)}.seek-mb{background:var(--red)}
+.seek-th{position:absolute;top:50%;width:16px;height:16px;background:var(--ac);border:2px solid #fff;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;box-shadow:0 0 6px rgba(249,115,22,.45);transition:left 0.05s linear}
+.seek-flags{position:relative;width:100%;height:24px;margin-bottom:1px;touch-action:none}
+.seek-flag{position:absolute;top:0;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;pointer-events:auto;cursor:grab;transition:left 0.05s linear;-webkit-tap-highlight-color:transparent}
+.seek-flag:active{cursor:grabbing}
+.seek-flag.dragging{cursor:grabbing;transition:none;z-index:5}
+.seek-flag-pole{width:2px;height:8px;border-radius:1px}
+.seek-flag-label{font-family:var(--mono);font-size:11px;font-weight:700;padding:2px 6px;border-radius:3px;white-space:nowrap;line-height:1.2;user-select:none}
+.seek-flag-a .seek-flag-pole{background:var(--grn)}
+.seek-flag-a .seek-flag-label{background:rgba(52,211,153,.15);color:var(--grn);border:1px solid rgba(52,211,153,.35)}
+.seek-flag-b .seek-flag-pole{background:var(--red)}
+.seek-flag-b .seek-flag-label{background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.3)}
+.time-r{display:flex;justify-content:space-between;font-family:var(--mono);font-size:13px;color:var(--tx2);margin-bottom:6px}
+
+/* §7 SPEED */
+.sp-btn{flex:1;padding:7px 0;min-width:0;text-align:center;font-family:var(--mono);font-size:13px;font-weight:600;border-radius:6px;border:1px solid var(--bd);background:var(--sf2);color:var(--tx2);cursor:pointer;transition:all .12s}
+.sp-btn:hover{border-color:var(--ac);color:var(--tx)}
+.sp-btn.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.sp-btn:disabled{opacity:.3;cursor:not-allowed}
+#speed-row{flex-wrap:nowrap}
+
+/* §8 AB LOOP */
+.ab-info{font-family:var(--mono);font-size:12px;color:var(--tx2);margin-top:5px}
+.ab-info.on{color:var(--pur)}
+.ab-warn{font-size:12px;color:var(--ac2);margin-top:4px}
+
+/* §9 TAP BPM */
+.tap-btn{width:100%;min-height:58px;font-size:22px;font-weight:700;font-family:var(--mono);border-radius:10px;background:var(--sf2);border:2px solid var(--bd);color:var(--tx);cursor:pointer;transition:all .08s;user-select:none;-webkit-tap-highlight-color:transparent}
+.tap-btn:active{background:var(--ac);border-color:var(--ac);color:#fff;transform:scale(.97)}
+
+/* §10 HISTORY */
+.hl{display:flex;flex-direction:column;gap:3px;max-height:180px;overflow-y:auto}
+.hi{display:flex;align-items:center;gap:6px;padding:7px 9px;background:var(--sf2);border-radius:6px;cursor:pointer;transition:background .1s}
+.hi:hover{background:#32323e}
+.hi-t{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--mono);font-size:12px;color:var(--tx2)}
+.hi-d{background:none;border:none;color:var(--tx2);cursor:pointer;font-size:15px;padding:1px 3px;border-radius:3px;line-height:1;flex-shrink:0}
+.hi-d:hover{color:var(--red)}
+
+/* §11 MESSAGES */
+.msg-err{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:8px;color:var(--red);padding:8px 12px;font-size:13px;margin-bottom:10px}
+.msg-info{background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.2);border-radius:8px;color:var(--blu);padding:8px 12px;font-size:13px;margin-bottom:10px}
+.msg-warn{background:rgba(249,115,22,.07);border:1px solid rgba(249,115,22,.2);border-radius:8px;color:var(--ac2);padding:8px 12px;font-size:13px;margin-bottom:10px}
+.msg-debug{font-family:var(--mono);font-size:10px;color:var(--tx2);opacity:.6;margin-bottom:6px;min-height:12px}
+.rst-bar{display:flex;align-items:center;gap:8px}
+.rst-bar span{flex:1}
+.mode-badge{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:4px;margin-left:8px}
+.mode-badge.api{background:rgba(52,211,153,.15);color:var(--grn);border:1px solid rgba(52,211,153,.3)}
+.mode-badge.iframe{background:rgba(249,115,22,.1);color:var(--ac2);border:1px solid rgba(249,115,22,.25)}
+.mode-badge.none{background:var(--sf2);color:var(--tx2);border:1px solid var(--bd)}
+
+/* §12 SECTIONS */
+.sec-form-row{display:flex;gap:6px;margin-bottom:6px}
+.sec-input{flex:1;background:var(--sf2);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:var(--mono);font-size:13px;padding:7px 9px;outline:none}
+.sec-input:focus{border-color:var(--ac)}
+.sec-input::placeholder{color:var(--tx2);opacity:.5}
+.sec-textarea{width:100%;background:var(--sf2);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:var(--mono);font-size:13px;padding:7px 9px;outline:none;resize:vertical;min-height:34px;max-height:80px}
+.sec-textarea:focus{border-color:var(--ac)}
+.sec-textarea::placeholder{color:var(--tx2);opacity:.5}
+.sec-select{background:var(--sf2);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:var(--mono);font-size:13px;padding:6px 8px;outline:none;cursor:pointer}
+.sec-select:focus{border-color:var(--ac)}
+
+/* Section speed nudge buttons */
+.sec-spd-bar{display:flex;align-items:center;gap:3px;margin:6px 0}
+.sec-spd-nudge{background:var(--sf2);border:1px solid var(--bd);border-radius:5px;color:var(--tx2);font-family:var(--mono);font-size:11px;font-weight:600;padding:4px 8px;cursor:pointer;transition:all .1s;-webkit-tap-highlight-color:transparent;user-select:none}
+.sec-spd-nudge:hover{border-color:var(--ac);color:var(--tx)}
+.sec-spd-nudge:active{transform:scale(.95)}
+.sec-spd-display{flex:1;text-align:center;font-family:var(--mono);font-size:15px;font-weight:700;color:var(--ac);cursor:pointer;user-select:none;border-radius:4px;transition:background .1s}
+.sec-spd-display:hover{background:rgba(249,115,22,.1)}
+.sec-spd-display.none{color:var(--tx2);font-weight:400;font-size:13px}
+
+.sec-list{display:flex;flex-direction:column;gap:4px;max-height:280px;overflow-y:auto}
+.sec-item{background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;cursor:pointer;transition:all .12s}
+.sec-item:hover{border-color:var(--pur);background:#2a2a32}
+.sec-item-top{display:flex;align-items:center;gap:5px}
+.sec-item-label{flex:1;font-family:var(--mono);font-size:13px;font-weight:600;color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sec-item-time{font-family:var(--mono);font-size:12px;color:var(--pur);white-space:nowrap}
+.sec-item-del{background:none;border:none;color:var(--tx2);cursor:pointer;font-size:14px;padding:1px 3px;border-radius:3px;line-height:1;flex-shrink:0}
+.sec-item-del:hover{color:var(--red)}
+.sec-item-meta{font-size:11px;color:var(--tx2);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sec-item-note{font-size:11px;color:var(--ac2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:italic}
+
+/* v3: Status badge */
+.sec-status{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;cursor:pointer;user-select:none;flex-shrink:0;line-height:1.2;border:1px solid transparent}
+.sec-status-todo{background:var(--sf);color:var(--tx2);border-color:var(--bd)}
+.sec-status-working{background:rgba(249,115,22,.12);color:var(--ac);border-color:rgba(249,115,22,.3)}
+.sec-status-done{background:rgba(52,211,153,.1);color:var(--grn);border-color:rgba(52,211,153,.25)}
+
+/* v3: Edit button */
+.sec-item-edit{background:none;border:none;color:var(--tx2);cursor:pointer;font-size:12px;padding:1px 3px;border-radius:3px;line-height:1;flex-shrink:0}
+.sec-item-edit:hover{color:var(--blu)}
+
+/* v3: Inline edit form */
+.sec-edit-form{margin-top:6px;padding-top:6px;border-top:1px solid var(--bd)}
+.sec-edit-row{display:flex;gap:4px;margin-bottom:4px}
+.sec-edit-input{flex:1;background:var(--bg);border:1px solid var(--bd);border-radius:4px;color:var(--tx);font-family:var(--mono);font-size:11px;padding:5px 7px;outline:none}
+.sec-edit-input:focus{border-color:var(--ac)}
+.sec-edit-select{background:var(--bg);border:1px solid var(--bd);border-radius:4px;color:var(--tx);font-family:var(--mono);font-size:11px;padding:4px 6px;outline:none;cursor:pointer}
+
+/* §13 BOOKMARKS */
+.bk-input{flex:1;background:var(--sf2);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:var(--mono);font-size:13px;padding:7px 9px;outline:none}
+.bk-input:focus{border-color:var(--ac)}
+.bk-input::placeholder{color:var(--tx2);opacity:.5}
+.bk-list{display:flex;flex-direction:column;gap:6px;max-height:320px;overflow-y:auto}
+.bk-folder-head{display:flex;align-items:center;gap:6px;padding:6px 8px;background:var(--sf2);border:1px solid var(--bd);border-radius:6px;cursor:pointer;user-select:none;transition:background .1s}
+.bk-folder-head:hover{background:#2e2e38}
+.bk-folder-icon{font-size:13px;width:16px;text-align:center;transition:transform .15s}
+.bk-folder-icon.open{transform:rotate(90deg)}
+.bk-folder-name{flex:1;font-family:var(--mono);font-size:13px;font-weight:600;color:var(--tx)}
+.bk-folder-cnt{font-family:var(--mono);font-size:11px;color:var(--tx2)}
+.bk-folder-del{background:none;border:none;color:var(--tx2);cursor:pointer;font-size:13px;padding:1px 3px;border-radius:3px;line-height:1}
+.bk-folder-del:hover{color:var(--red)}
+.bk-folder-items{padding-left:10px;display:flex;flex-direction:column;gap:3px;margin-top:3px}
+.bk-item{display:flex;align-items:center;gap:6px;padding:7px 9px;background:var(--sf2);border:1px solid var(--bd);border-radius:6px;cursor:pointer;transition:all .1s}
+.bk-item:hover{border-color:var(--ac);background:#2a2a32}
+.bk-item-body{flex:1;min-width:0}
+.bk-item-title{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-item-meta{font-size:11px;color:var(--tx2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-item-note{font-size:11px;color:var(--ac2);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:italic}
+.bk-item-del{background:none;border:none;color:var(--tx2);cursor:pointer;font-size:14px;padding:1px 3px;border-radius:3px;line-height:1;flex-shrink:0}
+.bk-item-del:hover{color:var(--red)}
+.bk-item-actions{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
+.bk-item-move{background:var(--bg);border:1px solid var(--bd);border-radius:4px;color:var(--tx2);font-family:var(--mono);font-size:10px;padding:2px 4px;cursor:pointer;outline:none;max-width:90px}
+.bk-item-move:focus{border-color:var(--ac)}
+.bk-add-folder{display:flex;gap:6px;margin-top:6px}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+/* Empty state */
+.empty-state{display:flex;align-items:center;justify-content:center;padding:14px 8px;opacity:.4}
+.empty-state-text{font-family:var(--mono);font-size:10px;color:var(--tx2);letter-spacing:.5px}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <h1>🎸 Practice Player<span id="mode-badge" class="mode-badge none">—</span></h1>
+</div>
+
+<div id="msg-err" class="msg-err" style="display:none"></div>
+<div id="msg-info" class="msg-info" style="display:none"></div>
+<div id="msg-warn" class="msg-warn" style="display:none"></div>
+<div id="msg-debug" class="msg-debug"></div>
+
+<div id="rst-bar" class="msg-info" style="display:none">
+  <div class="rst-bar">
+    <span>前回のセッションを復元できます</span>
+    <button type="button" class="btn btn-s" style="border-color:var(--blu);color:var(--blu)" onclick="doRestore()">復元</button>
+    <button type="button" class="btn btn-s" onclick="hideRestore()">✕</button>
+  </div>
+</div>
+
+<div class="url-bar">
+  <div class="url-wrap">
+    <input id="url-in" class="url-in" placeholder="YouTube URL を貼り付け…">
+    <button type="button" class="url-clear" id="url-clear" onclick="clearUrlInput()" title="クリア">✕</button>
+  </div>
+  <button type="button" id="btn-load" class="btn btn-a" disabled onclick="handleLoadClick()">読み込み</button>
+  <button type="button" id="btn-bk-quick" class="btn-bk-star" disabled onclick="quickBookmark()" title="ブックマーク追加">★</button>
+</div>
+
+<div class="grid">
+
+  <!-- LEFT -->
+  <div class="stack col-scroll">
+    <div class="card" id="card-bk">
+      <div class="card-t">★ ブックマーク</div>
+      <div style="font-size:11px;color:var(--tx2);margin-bottom:6px">★で保存・フォルダで整理</div>
+      <div class="bk-add-folder" style="margin-bottom:8px">
+        <input type="text" class="bk-input" id="bk-new-folder" placeholder="新しいフォルダ名" maxlength="30">
+        <button type="button" class="btn btn-s" onclick="addBookmarkFolder()">📁+</button>
+      </div>
+      <div class="bk-list" id="bk-list"><div class="empty-state"><div class="empty-state-text">ブックマークなし</div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-t">履歴 <span style="font-weight:400;opacity:.7">最新8件まで</span></div>
+      <div class="hl" id="hist-list"><div class="empty-state"><div class="empty-state-text">履歴なし</div></div></div>
+    </div>
+  </div>
+
+  <!-- CENTER -->
+  <div>
+    <div class="card">
+      <div id="embed-wrap">
+        <div id="embed-ph" class="embed-ph"><b>▶</b><span>URLを貼り付けて再生</span></div>
+      </div>
+      <div id="vid-title" class="vid-title" style="display:none"></div>
+      <div class="seek-w disabled" id="seek-w">
+        <div class="seek-t" id="seek-t">
+          <div class="seek-f" id="seek-f"></div>
+          <div class="seek-ab" id="seek-ab" style="display:none"></div>
+          <div class="seek-mk seek-ma" id="seek-ma" style="display:none"></div>
+          <div class="seek-mk seek-mb" id="seek-mb" style="display:none"></div>
+          <div class="seek-th" id="seek-th" style="left:0%"></div>
+        </div>
+      </div>
+      <div class="seek-flags" id="seek-flags">
+        <div class="seek-flag seek-flag-a" id="flag-a" style="display:none"><div class="seek-flag-pole"></div><div class="seek-flag-label" id="flag-a-label">A 0:00</div></div>
+        <div class="seek-flag seek-flag-b" id="flag-b" style="display:none"><div class="seek-flag-pole"></div><div class="seek-flag-label" id="flag-b-label">B 0:00</div></div>
+      </div>
+      <div class="time-r"><span id="t-cur">0:00</span><span id="t-dur">0:00</span></div>
+      <div class="row rowc" id="transport" style="gap:4px">
+        <button type="button" class="btn btn-s" disabled onclick="seekBy(-10)">-10</button>
+        <button type="button" class="btn btn-s" disabled onclick="seekBy(-5)">-5</button>
+        <button type="button" class="btn btn-s" disabled onclick="seekBy(-2)">-2</button>
+        <button type="button" class="btn btn-a" disabled onclick="togglePlay()" id="btn-play" style="min-width:50px">▶</button>
+        <button type="button" class="btn btn-s" disabled onclick="seekBy(2)">+2</button>
+        <button type="button" class="btn btn-s" disabled onclick="seekBy(5)">+5</button>
+        <button type="button" class="btn btn-s" disabled onclick="seekBy(10)">+10</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="stack col-scroll">
+    <div class="card" id="card-speed">
+      <div class="card-t">再生速度</div>
+      <div class="row" style="align-items:center;margin-bottom:6px">
+        <button type="button" class="btn btn-s" disabled id="btn-spd-down2" onclick="nudgeSpeed(-0.1)">−0.1</button>
+        <button type="button" class="btn btn-s" disabled id="btn-spd-down" onclick="nudgeSpeed(-0.05)">−.05</button>
+        <div id="speed-display" style="flex:1;text-align:center;font-family:var(--mono);font-size:18px;font-weight:700;color:var(--ac)">1x</div>
+        <button type="button" class="btn btn-s" disabled id="btn-spd-up" onclick="nudgeSpeed(0.05)">+.05</button>
+        <button type="button" class="btn btn-s" disabled id="btn-spd-up2" onclick="nudgeSpeed(0.1)">+0.1</button>
+      </div>
+      <div class="row rowc" id="speed-row"></div>
+    </div>
+
+    <div class="card" id="card-ab">
+      <div class="card-t">A-B ループ</div>
+      <div class="row">
+        <button type="button" class="btn btn-s" disabled id="btn-a" onclick="setPointA()">A: —</button>
+        <button type="button" class="btn btn-s" disabled id="btn-b" onclick="setPointB()">B: —</button>
+        <button type="button" class="btn btn-s" disabled id="btn-loop" onclick="toggleLoop()">LOOP</button>
+        <button type="button" class="btn btn-s" disabled id="btn-clear-ab" onclick="clearAB()">クリア</button>
+      </div>
+      <div class="ab-info" id="ab-info" style="display:none"></div>
+      <div class="ab-warn" id="ab-warn" style="display:none"></div>
+    </div>
+
+    <!-- v3: Section Save -->
+    <div class="card" id="card-sec-save">
+      <div class="card-t">区間を保存</div>
+      <input type="text" class="sec-input" id="sec-label" placeholder="区間名（例: イントロ）" maxlength="40" style="width:100%;margin-bottom:6px">
+      <textarea class="sec-textarea" id="sec-note" placeholder="メモ（任意）" maxlength="200" rows="1"></textarea>
+      <div class="sec-spd-bar">
+        <button type="button" class="sec-spd-nudge" onclick="secSpdSetNone()" title="速度指定なし">×</button>
+        <button type="button" class="sec-spd-nudge" onclick="secSpdNudge(-0.1)">−.1</button>
+        <button type="button" class="sec-spd-nudge" onclick="secSpdNudge(-0.05)">−.05</button>
+        <div class="sec-spd-display" id="sec-spd-display" onclick="secSpdSetCurrent()" title="現在速度をセット">1x</div>
+        <button type="button" class="sec-spd-nudge" onclick="secSpdNudge(0.05)">+.05</button>
+        <button type="button" class="sec-spd-nudge" onclick="secSpdNudge(0.1)">+.1</button>
+      </div>
+      <input type="hidden" id="sec-speed-preset" value="">
+      <div style="display:flex;align-items:center;gap:8px">
+        <button type="button" class="btn btn-s btn-a" id="btn-sec-save" disabled onclick="saveSection()">💾 区間を保存</button>
+      </div>
+    </div>
+
+    <!-- v3: Saved Sections (進捗・編集付き) -->
+    <div class="card" id="card-sec-list">
+      <div class="card-t">保存済み区間</div>
+      <div class="sec-list" id="sec-list"><div class="empty-state"><div class="empty-state-text">保存区間なし</div></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-t">TAP BPM</div>
+      <button type="button" class="tap-btn" onclick="handleTap()"><span id="tap-display">TAP</span></button>
+      <div style="font-size:11px;color:var(--tx2);margin-top:5px">曲に合わせてタップでBPM測定</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   §0  UTILITIES
+   ============================================================ */
+function extractVideoId(input){
+  if(!input||typeof input!=='string')return null;
+  var s=input.trim();
+  if(/^[A-Za-z0-9_-]{11}$/.test(s))return s;
+  try{
+    var u=new URL(s),h=u.hostname.replace('www.','');
+    if(h==='youtube.com'||h==='m.youtube.com'){
+      if(u.searchParams.has('v'))return u.searchParams.get('v');
+      var seg=u.pathname.split('/').filter(Boolean);
+      if(['shorts','embed','live'].indexOf(seg[0])!==-1&&seg[1])return seg[1];
+    }
+    if(h==='youtu.be'){var p=u.pathname.slice(1);if(p)return p.split('/')[0];}
+  }catch(e){}
+  return null;
+}
+function fmt(sec){
+  if(sec==null||isNaN(sec)||sec<0)return'0:00';
+  var m=Math.floor(sec/60),s=Math.floor(sec%60);
+  return m+':'+(s<10?'0':'')+s;
+}
+function generateId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+/** 速度値を丸めた整数(×100)で返す。null→null。比較用共通関数。 */
+function normSpd(v){return v!=null?Math.round(v*100):null;}
+
+/* §2 STATE */
+var controlMode='none';
+var apiAvailable=false,player=null,playerReady=false;
+var currentVideoId=null,currentUrl='';
+var currentTime=0,duration=0,speed=1,isPlaying=false;
+var pointA=null,pointB=null,loopActive=false,AB_MIN_INTERVAL=0.3;
+var tapTimes=[],tapResetTimer=null,bpmValue=null;
+var videoHistory=[];
+try{videoHistory=JSON.parse(localStorage.getItem('ytp_hist'))||[];}catch(e){videoHistory=[];}
+var allSections={};
+try{allSections=JSON.parse(localStorage.getItem('ytp_sections'))||{};}catch(e){allSections={};}
+var bookmarkData={folders:[],items:[]};
+try{bookmarkData=JSON.parse(localStorage.getItem('ytp_bookmarks'))||{folders:[],items:[]};}catch(e){bookmarkData={folders:[],items:[]};}
+var openFolders={};
+var tickInterval=null;
+// v3: 編集中セクションID
+var editingSectionId=null;
+
+/* §3 DOM REFS */
+var $=function(id){return document.getElementById(id);};
+var $err=$('msg-err'),$info=$('msg-info'),$warn=$('msg-warn'),$debug=$('msg-debug');
+var $urlIn=$('url-in'),$ph=$('embed-ph'),$title=$('vid-title');
+var $seekW=$('seek-w'),$seekF=$('seek-f'),$seekAB=$('seek-ab');
+var $seekMA=$('seek-ma'),$seekMB=$('seek-mb'),$seekTh=$('seek-th');
+var $tCur=$('t-cur'),$tDur=$('t-dur');
+var $btnPlay=$('btn-play'),$btnA=$('btn-a'),$btnB=$('btn-b'),$btnLoop=$('btn-loop');
+var $abInfo=$('ab-info'),$abWarn=$('ab-warn'),$badge=$('mode-badge');
+var $flagA=$('flag-a'),$flagALabel=$('flag-a-label'),$flagB=$('flag-b'),$flagBLabel=$('flag-b-label');
+
+/* §4 MESSAGES */
+function showError(m){$err.textContent=m;$err.style.display='block';}
+function clearError(){$err.style.display='none';}
+function showInfo(m){$info.textContent=m;$info.style.display='block';}
+function clearInfo(){$info.style.display='none';}
+function showWarn(m){$warn.textContent=m;$warn.style.display='block';}
+function clearWarn(){$warn.style.display='none';}
+function debugLog(m){console.log('[YTP]',m);$debug.textContent=m;}
+function clearAllMessages(){clearError();clearInfo();clearWarn();}
+function clearLoadMessages(){clearError();clearInfo();}
+
+/* §4b SELF-TESTS */
+(function(){
+  var f=[];
+  function eq(a,b,l){if(a!==b)f.push(l);}
+  eq(extractVideoId('dQw4w9WgXcQ'),'dQw4w9WgXcQ','raw');
+  eq(extractVideoId('https://www.youtube.com/watch?v=dQw4w9WgXcQ'),'dQw4w9WgXcQ','watch');
+  eq(extractVideoId('https://youtu.be/dQw4w9WgXcQ'),'dQw4w9WgXcQ','short');
+  eq(extractVideoId('not-a-url'),null,'invalid');
+  eq(fmt(0),'0:00','f0');eq(fmt(65),'1:05','f65');
+  if(f.length){console.error('TESTS FAILED:',f);showError('Self-Test: '+f.join(', '));}
+  else debugLog('Self-tests passed ✓');
+})();
+
+/* §5 MODE */
+function setMode(mode){controlMode=mode;debugLog('Mode → '+mode);$badge.textContent=mode==='api'?'API':mode==='iframe'?'簡易':'—';$badge.className='mode-badge '+mode;updateControlAvailability();}
+function updateControlAvailability(){
+  var isApi=controlMode==='api'&&playerReady;
+  document.querySelectorAll('#transport .btn').forEach(function(b){b.disabled=!isApi;});
+  $seekW.classList.toggle('disabled',!isApi);
+  document.querySelectorAll('#speed-row .sp-btn').forEach(function(b){b.disabled=!isApi;});
+  $('btn-spd-down').disabled=!isApi;$('btn-spd-up').disabled=!isApi;
+  $('btn-spd-down2').disabled=!isApi;$('btn-spd-up2').disabled=!isApi;
+  $btnA.disabled=!isApi;$btnB.disabled=!isApi;
+  $btnLoop.disabled=!isApi||!canEnableLoop();
+  $('btn-clear-ab').disabled=!isApi;
+  updateSectionSaveButton();
+  updateBookmarkSaveButton();
+  if(controlMode==='iframe'){showInfo('簡易モード: YouTube内蔵コントロールで操作してください');}else{clearInfo();}
+}
+
+/* §6 SPEED */
+(function(){
+  var speeds=[0.25,0.5,0.75,1,1.25,1.5,2];
+  var row=$('speed-row');
+  speeds.forEach(function(s){
+    var btn=document.createElement('button');btn.type='button';
+    btn.className='sp-btn'+(s===1?' on':'');btn.disabled=true;
+    btn.textContent=s+'x';btn.setAttribute('data-speed',s);
+    btn.onclick=function(){changeSpeed(s);};row.appendChild(btn);
+  });
+})();
+function updateSpeedButtons(){
+  document.querySelectorAll('#speed-row .sp-btn').forEach(function(b){b.classList.toggle('on',parseFloat(b.getAttribute('data-speed'))===speed);});
+  var disp=$('speed-display');if(disp)disp.textContent=speed+'x';
+}
+function changeSpeed(s,opts){
+  s=Math.round(Math.max(0.05,Math.min(4,s))*100)/100;speed=s;updateSpeedButtons();
+  if(controlMode==='api'&&player&&playerReady){try{player.setPlaybackRate(s);}catch(e){}}
+  if(!(opts&&opts.skipSave))saveSession();
+  updateBookmarkSaveButton();
+}
+function nudgeSpeed(d){changeSpeed(speed+d);}
+
+/* §7 YT API LOADER */
+(function(){
+  debugLog('YouTube API 読み込み中…');
+  if(window.YT&&window.YT.Player){apiAvailable=true;debugLog('YouTube API ✓');onAPILoaded();return;}
+  var done=false;
+  var to=setTimeout(function(){if(!done){done=true;debugLog('YouTube API タイムアウト');onAPILoaded();}},10000);
+  var poll=setInterval(function(){if(window.YT&&window.YT.Player&&!done){done=true;clearInterval(poll);clearTimeout(to);apiAvailable=true;debugLog('YouTube API ✓');onAPILoaded();}},200);
+  var prev=window.onYouTubeIframeAPIReady;
+  window.onYouTubeIframeAPIReady=function(){if(prev)prev();if(!done){done=true;clearInterval(poll);clearTimeout(to);apiAvailable=true;debugLog('YouTube API ✓');onAPILoaded();}};
+  var sc=document.createElement('script');sc.src='https://www.youtube.com/iframe_api';
+  sc.onerror=function(){if(!done){done=true;clearInterval(poll);clearTimeout(to);debugLog('YouTube API 失敗');onAPILoaded();}};
+  document.head.appendChild(sc);
+})();
+function onAPILoaded(){$('btn-load').disabled=false;try{if(JSON.parse(localStorage.getItem('ytp_vid')))$('rst-bar').style.display='block';}catch(e){}}
+
+/* §8 PLAYER LIFECYCLE */
+function resetPlaybackState(){currentTime=0;duration=0;isPlaying=false;$tCur.textContent='0:00';$tDur.textContent='0:00';$btnPlay.textContent='▶';$btnPlay.classList.add('btn-a');updateSeekbar();}
+function resetLoopState(){pointA=null;pointB=null;loopActive=false;updateABUI();}
+function handleLoadClick(){loadVideoByUrl($urlIn.value);}
+function clearUrlInput(){$urlIn.value='';$urlIn.focus();updateUrlClearBtn();}
+function updateUrlClearBtn(){$('url-clear').classList.toggle('show',$urlIn.value.length>0);}
+
+function loadVideoByUrl(url){
+  var id=extractVideoId(url);if(!id){showError('有効なYouTube URLを入力してください');return;}
+  clearLoadMessages();$urlIn.value=url;updateUrlClearBtn();currentUrl=url;currentVideoId=id;
+  resetPlaybackState();resetLoopState();
+  editingSectionId=null; // v3fix: 動画切替時に編集状態をクリア
+  $ph.style.display='none';$title.style.display='none';
+  addToHistory(url,id);clearSectionForm();renderSections();
+  if(apiAvailable){debugLog('API モード: '+id);createPlayerAPI(id);}
+  else{debugLog('簡易モード: '+id);createPlayerIframe(id);}
+}
+function createPlayerAPI(id){
+  destroyPlayer(true);
+  var wrap=$('embed-wrap'),div=document.createElement('div');
+  div.id='player-target';div.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;';
+  wrap.appendChild(div);
+  try{new YT.Player('player-target',{videoId:id,playerVars:{autoplay:1,controls:1,rel:0,modestbranding:1,playsinline:1,enablejsapi:1},events:{onReady:onPlayerReady,onStateChange:onPlayerStateChange,onError:onPlayerError}});}
+  catch(e){debugLog('API失敗→簡易: '+e.message);createPlayerIframe(id);}
+}
+function onPlayerReady(e){player=e.target;playerReady=true;clearError();setMode('api');try{duration=player.getDuration()||0;$tDur.textContent=fmt(duration);}catch(e){}try{player.setPlaybackRate(speed);}catch(e){}tryGetTitle();startTick();saveSession();debugLog('Player ready ✓');}
+function onPlayerStateChange(e){if(controlMode!=='api')return;isPlaying=(e.data===YT.PlayerState.PLAYING);$btnPlay.textContent=isPlaying?'⏸':'▶';$btnPlay.classList.toggle('btn-a',!isPlaying);if(e.data===YT.PlayerState.PLAYING){try{var d=player.getDuration();if(d&&d!==duration){duration=d;$tDur.textContent=fmt(d);}}catch(e){}tryGetTitle();}}
+function onPlayerError(e){var c=e.data;debugLog('API error '+c);if(c===101||c===150||c===153){createPlayerIframe(currentVideoId);}else if(c===100){cleanupAfterFatalError();showError('動画が見つかりません');}else if(c===2){cleanupAfterFatalError();showError('パラメータ不正');}else{createPlayerIframe(currentVideoId);}}
+function cleanupAfterFatalError(){destroyPlayer(true);setMode('none');$ph.style.display='flex';$title.style.display='none';resetPlaybackState();}
+function createPlayerIframe(id){destroyPlayer(true);var wrap=$('embed-wrap'),iframe=document.createElement('iframe');iframe.id='player-target';iframe.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:none;';iframe.setAttribute('allow','autoplay; encrypted-media; picture-in-picture');iframe.setAttribute('allowfullscreen','true');iframe.src='https://www.youtube.com/embed/'+id+'?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1';wrap.appendChild(iframe);player=null;playerReady=false;setMode('iframe');saveSession();}
+function destroyPlayer(keepMode){stopTick();if(player){try{player.destroy();}catch(e){}}player=null;playerReady=false;var old=$('player-target');if(old)old.remove();$('embed-wrap').querySelectorAll('iframe').forEach(function(f){f.remove();});if(!keepMode)setMode('none');}
+function tryGetTitle(){if(!player)return;try{var d=player.getVideoData&&player.getVideoData();if(d&&d.title){$title.textContent='🎵 '+d.title;$title.title=d.title;$title.style.display='block';updateHistoryTitle(currentVideoId,d.title);}}catch(e){}}
+
+/* §9 TICK */
+function startTick(){stopTick();tickInterval=setInterval(function(){if(controlMode!=='api'||!player||!playerReady)return;try{currentTime=player.getCurrentTime();var d=player.getDuration();if(d&&d!==duration){duration=d;$tDur.textContent=fmt(d);}updateSeekbar();if(loopActive&&pointA!=null&&pointB!=null&&pointB>pointA&&currentTime>=pointB){player.seekTo(pointA,true);}}catch(e){}},200);}
+function stopTick(){if(tickInterval){clearInterval(tickInterval);tickInterval=null;}}
+function updateSeekbar(){
+  var pct=duration>0?(currentTime/duration)*100:0;
+  $seekF.style.width=pct+'%';$seekTh.style.left=pct+'%';$tCur.textContent=fmt(currentTime);
+  if(pointA!=null&&duration>0){$seekMA.style.left=(pointA/duration)*100+'%';$seekMA.style.display='block';}else{$seekMA.style.display='none';}
+  if(pointB!=null&&duration>0){$seekMB.style.left=(pointB/duration)*100+'%';$seekMB.style.display='block';}else{$seekMB.style.display='none';}
+  if(pointA!=null&&pointB!=null&&pointB>pointA&&duration>0){var a2=(pointA/duration)*100,b2=(pointB/duration)*100;$seekAB.style.left=a2+'%';$seekAB.style.width=(b2-a2)+'%';$seekAB.style.display='block';}else{$seekAB.style.display='none';}
+  if(pointA!=null&&duration>0){$flagA.style.left=(pointA/duration)*100+'%';$flagALabel.textContent='A '+fmt(pointA);$flagA.style.display='flex';}else{$flagA.style.display='none';}
+  if(pointB!=null&&duration>0){$flagB.style.left=(pointB/duration)*100+'%';$flagBLabel.textContent='B '+fmt(pointB);$flagB.style.display='flex';}else{$flagB.style.display='none';}
+}
+
+/* §10 TRANSPORT */
+function togglePlay(){if(controlMode!=='api'||!player||!playerReady)return;try{player.getPlayerState()===YT.PlayerState.PLAYING?player.pauseVideo():player.playVideo();}catch(e){}}
+function seekBy(d){if(controlMode!=='api'||!player||!playerReady)return;try{var t=Math.max(0,player.getCurrentTime()+d);player.seekTo(t,true);currentTime=t;updateSeekbar();}catch(e){}}
+function seekToPosition(t){if(controlMode!=='api'||!player||!playerReady)return;try{player.seekTo(t,true);currentTime=t;updateSeekbar();}catch(e){}}
+
+/* §11 SEEKBAR INTERACTION */
+(function(){var dragging=false;function getSeekTime(e){var rect=$seekW.getBoundingClientRect();var cx=e.clientX!=null?e.clientX:(e.touches&&e.touches[0]?e.touches[0].clientX:0);return Math.max(0,Math.min(1,(cx-rect.left)/rect.width))*duration;}
+$seekW.addEventListener('pointerdown',function(e){if(controlMode!=='api'||!duration)return;dragging=true;$seekW.setPointerCapture(e.pointerId);$seekTh.style.transition='none';seekToPosition(getSeekTime(e));});
+$seekW.addEventListener('pointermove',function(e){if(!dragging||controlMode!=='api'||!duration)return;currentTime=getSeekTime(e);updateSeekbar();});
+$seekW.addEventListener('pointerup',function(e){if(!dragging)return;dragging=false;$seekTh.style.transition='left 0.05s linear';if(controlMode==='api'&&duration)seekToPosition(getSeekTime(e));});
+$seekW.addEventListener('pointercancel',function(){dragging=false;$seekTh.style.transition='left 0.05s linear';});
+})();
+
+/* §11b FLAG DRAG */
+(function(){var dragTarget=null,flagsRect=null;
+function getFlagTime(e){if(!flagsRect||!duration)return 0;var cx=e.clientX!=null?e.clientX:(e.touches&&e.touches[0]?e.touches[0].clientX:0);return Math.max(0,Math.min(1,(cx-flagsRect.left)/flagsRect.width))*duration;}
+function onDown(which,e){if(controlMode!=='api'||!duration)return;e.preventDefault();e.stopPropagation();dragTarget=which;flagsRect=$('seek-flags').getBoundingClientRect();var flag=$(which==='a'?'flag-a':'flag-b');flag.classList.add('dragging');flag.setPointerCapture(e.pointerId);}
+$flagA.addEventListener('pointerdown',function(e){if(pointA==null)return;onDown('a',e);});
+$flagB.addEventListener('pointerdown',function(e){if(pointB==null)return;onDown('b',e);});
+function onMove(e){if(!dragTarget)return;e.preventDefault();var t=getFlagTime(e);if(dragTarget==='a'){pointA=t;if(pointB!=null&&pointA>=pointB-AB_MIN_INTERVAL)pointA=pointB-AB_MIN_INTERVAL;if(pointA<0)pointA=0;}else{pointB=t;if(pointA!=null&&pointB<=pointA+AB_MIN_INTERVAL)pointB=pointA+AB_MIN_INTERVAL;if(pointB>duration)pointB=duration;}updateABUI();}
+function onUp(e){if(!dragTarget)return;$(dragTarget==='a'?'flag-a':'flag-b').classList.remove('dragging');dragTarget=null;flagsRect=null;saveSession();}
+$flagA.addEventListener('pointermove',onMove);$flagB.addEventListener('pointermove',onMove);
+$flagA.addEventListener('pointerup',onUp);$flagB.addEventListener('pointerup',onUp);
+$flagA.addEventListener('pointercancel',onUp);$flagB.addEventListener('pointercancel',onUp);
+})();
+
+/* §12 AB LOOP */
+function canEnableLoop(){return pointA!=null&&pointB!=null&&pointB>pointA&&pointB-pointA>=AB_MIN_INTERVAL;}
+function setPointA(){if(controlMode!=='api')return;pointA=currentTime;$abWarn.style.display='none';if(pointB!=null&&pointB<=pointA){pointB=null;loopActive=false;$abWarn.textContent='💡 A点移動のためB点クリア';$abWarn.style.display='block';}updateABUI();saveSession();}
+function setPointB(){if(controlMode!=='api')return;if(pointA==null){$abWarn.textContent='💡 先にA点を設定';$abWarn.style.display='block';return;}pointB=currentTime;$abWarn.style.display='none';if(pointB<=pointA){$abWarn.textContent='⚠ B点はA点より後に';$abWarn.style.display='block';}else if(pointB-pointA<AB_MIN_INTERVAL){$abWarn.textContent='⚠ 区間が短すぎます';$abWarn.style.display='block';}updateABUI();saveSession();}
+function clearAB(){if(controlMode!=='api')return;pointA=null;pointB=null;loopActive=false;$abWarn.style.display='none';updateABUI();saveSession();}
+function toggleLoop(){if(controlMode!=='api'||!canEnableLoop())return;loopActive=!loopActive;if(loopActive&&player&&playerReady){try{player.seekTo(pointA,true);}catch(e){}}updateABUI();saveSession();}
+function updateABUI(){
+  $btnA.textContent='A: '+(pointA!=null?fmt(pointA):'—');$btnA.style.borderColor=pointA!=null?'var(--grn)':'';$btnA.style.color=pointA!=null?'var(--grn)':'';
+  $btnB.textContent='B: '+(pointB!=null?fmt(pointB):'—');$btnB.style.borderColor=pointB!=null?'var(--red)':'';$btnB.style.color=pointB!=null?'var(--red)':'';
+  var cl=canEnableLoop();$btnLoop.disabled=(controlMode!=='api')||!cl;
+  $btnLoop.textContent=loopActive?'🔁 LOOP ON':'LOOP';$btnLoop.classList.toggle('btn-a',loopActive);
+  if(cl){$abInfo.textContent=fmt(pointA)+' → '+fmt(pointB)+(loopActive?'  🔁 ループ中':'');$abInfo.className='ab-info'+(loopActive?' on':'');$abInfo.style.display='block';}else{$abInfo.style.display='none';}
+  updateSeekbar();updateSectionSaveButton();updateBookmarkSaveButton();
+}
+
+/* §13 TAP BPM */
+function handleTap(){var now=performance.now();if(tapTimes.length>0&&now-tapTimes[tapTimes.length-1]>2800)tapTimes=[];tapTimes.push(now);if(tapTimes.length>9)tapTimes=tapTimes.slice(-9);var cnt=tapTimes.length;var disp=$('tap-display');if(cnt<2){bpmValue=null;disp.textContent='TAP...';return;}var ivs=[];for(var i=1;i<tapTimes.length;i++)ivs.push(tapTimes[i]-tapTimes[i-1]);var avg=ivs.reduce(function(a,b){return a+b;},0)/ivs.length;bpmValue=Math.round(60000/avg);disp.textContent=bpmValue+' BPM';clearTimeout(tapResetTimer);tapResetTimer=setTimeout(resetTap,2800);}
+function resetTap(){tapTimes=[];bpmValue=null;clearTimeout(tapResetTimer);$('tap-display').textContent='TAP';}
+
+/* §14 HISTORY */
+function addToHistory(url,id){videoHistory=videoHistory.filter(function(h){return h.url!==url;});videoHistory.unshift({url:url,id:id,title:'',lastPos:0});if(videoHistory.length>8)videoHistory=videoHistory.slice(0,8);saveHistory();renderHistory();}
+function updateHistoryTitle(id,t){videoHistory.forEach(function(h){if(h.id===id)h.title=t;});saveHistory();renderHistory();}
+function updateHistoryPosition(id,pos){videoHistory.forEach(function(h){if(h.id===id)h.lastPos=pos;});saveHistory();}
+function deleteHistoryItem(url){videoHistory=videoHistory.filter(function(h){return h.url!==url;});saveHistory();renderHistory();}
+function saveHistory(){try{localStorage.setItem('ytp_hist',JSON.stringify(videoHistory));}catch(e){}}
+function renderHistory(){var $l=$('hist-list');if(!videoHistory.length){$l.innerHTML='<div class="empty-state"><div class="empty-state-text">履歴なし</div></div>';return;}$l.innerHTML='';videoHistory.forEach(function(h){var item=document.createElement('div');item.className='hi';item.onclick=function(){$urlIn.value=h.url;loadVideoByUrl(h.url);};var txt=document.createElement('div');txt.className='hi-t';txt.textContent=(h.title||h.url||h.id)+(h.lastPos>0?'  ('+fmt(h.lastPos)+')':'');var del=document.createElement('button');del.type='button';del.className='hi-d';del.textContent='✕';del.onclick=function(e){e.stopPropagation();deleteHistoryItem(h.url);};item.appendChild(txt);item.appendChild(del);$l.appendChild(item);});}
+renderHistory();
+
+/* §15 SESSION */
+function saveSession(){try{if(currentVideoId){localStorage.setItem('ytp_vid',JSON.stringify(currentVideoId));localStorage.setItem('ytp_url',JSON.stringify(currentUrl));}localStorage.setItem('ytp_spd',JSON.stringify(speed));localStorage.setItem('ytp_a',JSON.stringify(pointA));localStorage.setItem('ytp_b',JSON.stringify(pointB));localStorage.setItem('ytp_loop',JSON.stringify(loopActive));}catch(e){}}
+function savePosition(){if(controlMode!=='api'||!player||!playerReady)return;try{var pos=player.getCurrentTime();localStorage.setItem('ytp_pos',JSON.stringify(pos));if(currentVideoId)updateHistoryPosition(currentVideoId,pos);}catch(e){}}
+setInterval(savePosition,2000);
+function loadSessionValue(key,fb){try{var v=localStorage.getItem(key);return v!=null?JSON.parse(v):fb;}catch(e){return fb;}}
+
+/* §16 RESTORE */
+function hideRestore(){$('rst-bar').style.display='none';}
+function doRestore(){hideRestore();var vid=loadSessionValue('ytp_vid',null),url=loadSessionValue('ytp_url','');if(!vid){showError('復元データなし');return;}speed=loadSessionValue('ytp_spd',1);changeSpeed(speed);$urlIn.value=url;loadVideoByUrl(url||vid);var savedA=loadSessionValue('ytp_a',null),savedB=loadSessionValue('ytp_b',null),savedLoop=loadSessionValue('ytp_loop',false),savedPos=loadSessionValue('ytp_pos',0);var att=0;var ri=setInterval(function(){att++;if(att>40){clearInterval(ri);return;}if(controlMode==='api'&&playerReady&&player){if(savedPos>0){try{player.seekTo(savedPos,true);currentTime=savedPos;updateSeekbar();}catch(e){}}try{player.setPlaybackRate(speed);}catch(e){}if(savedA!=null)pointA=savedA;if(savedB!=null)pointB=savedB;if(savedLoop&&canEnableLoop())loopActive=true;updateABUI();debugLog('復元完了 ✓');clearInterval(ri);}else if(controlMode==='iframe'){showInfo('簡易モード: 復元制限あり');clearInterval(ri);}},300);}
+
+/* ============================================================
+   §17  SAVED SECTIONS (v3: speedPreset + status + edit)
+   ============================================================ */
+
+var SECTION_DUPE_TOLERANCE=0.5;
+var STATUS_LIST=['todo','working','done'];
+var STATUS_LABELS={todo:'未着手',working:'練習中',done:'完了'};
+
+function getSections(){return currentVideoId?(allSections[currentVideoId]||[]):[];}
+function saveSectionsStore(){try{localStorage.setItem('ytp_sections',JSON.stringify(allSections));}catch(e){}}
+
+/* 区間保存の速度 — null=なし対応、初期値=現在の再生速度 */
+var secSpdValue=null; // null=なし, number=指定あり
+
+function updateSecSpdDisplay(){
+  var disp=$('sec-spd-display');
+  if(secSpdValue==null){
+    disp.textContent='なし';
+    disp.classList.add('none');
+    $('sec-speed-preset').value='';
+  }else{
+    disp.textContent=secSpdValue+'x';
+    disp.classList.remove('none');
+    $('sec-speed-preset').value=String(secSpdValue);
+  }
+}
+
+function secSpdNudge(delta){
+  // なし状態からnudgeしたら現在速度を起点にする
+  var base=(secSpdValue!=null)?secSpdValue:speed;
+  secSpdValue=Math.round(Math.max(0.25,Math.min(2,base+delta))*100)/100;
+  updateSecSpdDisplay();
+}
+
+/** なし に切替 */
+function secSpdSetNone(){secSpdValue=null;updateSecSpdDisplay();}
+
+/** 中央の表示クリックで現在の再生速度をセット */
+function secSpdSetCurrent(){
+  secSpdValue=Math.round(Math.max(0.25,Math.min(2,speed))*100)/100;
+  updateSecSpdDisplay();
+}
+
+/** フォームリセット — 現在の再生速度を初期値にする */
+function secSpdInitFromCurrent(){
+  secSpdValue=Math.round(Math.max(0.25,Math.min(2,speed))*100)/100;
+  updateSecSpdDisplay();
+}
+
+secSpdInitFromCurrent();
+
+function clearSectionForm(){$('sec-label').value='';$('sec-note').value='';secSpdInitFromCurrent();}
+
+function updateSectionSaveButton(){
+  var canSave=canEnableLoop()&&controlMode==='api'&&currentVideoId;
+  $('btn-sec-save').disabled=!canSave;
+}
+
+/**
+ * 区間重複判定 — pointA/pointB + speedPreset の3条件で判定する。
+ * 同じ区間でも速度が異なれば「別の練習条件」として別保存できる。
+ * speedPreset が null 同士の場合も重複とみなす。
+ */
+function isDuplicateSection(a,b,spd){
+  var secs=getSections();
+  for(var i=0;i<secs.length;i++){
+    var s=secs[i];
+    if(Math.abs(s.pointA-a)<SECTION_DUPE_TOLERANCE&&Math.abs(s.pointB-b)<SECTION_DUPE_TOLERANCE){
+      // 速度も一致（両方null、または丸め後の値が同じ）なら重複
+      var spdA=normSpd(s.speedPreset);
+      var spdB=normSpd(spd);
+      if(spdA===spdB)return true;
+    }
+  }
+  return false;
+}
+
+/** 区間保存 — speedPreset と status:'todo' を含む */
+function saveSection(){
+  if(!canEnableLoop()||!currentVideoId)return;
+  var spdVal=$('sec-speed-preset').value;
+  var parsedSpd=spdVal?parseFloat(spdVal):null;
+  if(isDuplicateSection(pointA,pointB,parsedSpd)){showWarn('⚠ 同じ区間・同じ速度で保存済みです');return;}
+  var label=$('sec-label').value.trim();
+  var note=$('sec-note').value.trim();
+  if(!label)label=fmt(pointA)+' → '+fmt(pointB);
+  var section={
+    id:generateId(),
+    label:label,
+    pointA:pointA,
+    pointB:pointB,
+    note:note,
+    speedPreset:parsedSpd,
+    status:'todo',  // v3: 初期ステータス
+    createdAt:Date.now()
+  };
+  if(!allSections[currentVideoId])allSections[currentVideoId]=[];
+  allSections[currentVideoId].unshift(section);
+  saveSectionsStore();renderSections();clearSectionForm();
+  debugLog('区間保存: '+label);
+}
+
+/** 区間読込 — 状態適用順: A/B → speed(save抑制) → loop → UI → seek → saveSession */
+function loadSection(sec){
+  // 1. A/B設定
+  pointA=sec.pointA;pointB=sec.pointB;
+  // 2. 速度適用（saveSession抑制 — 最終状態確定後にまとめて保存）
+  changeSpeed(sec.speedPreset!=null?sec.speedPreset:1,{skipSave:true});
+  // 3. ループ判定
+  var secValid=sec.pointA!=null&&sec.pointB!=null&&sec.pointB>sec.pointA&&sec.pointB-sec.pointA>=AB_MIN_INTERVAL;
+  loopActive=secValid;
+  // 4. UI更新
+  updateABUI();
+  // 5. シーク
+  if(controlMode==='api'&&player&&playerReady){try{player.seekTo(sec.pointA,true);currentTime=sec.pointA;updateSeekbar();}catch(e){}}
+  // 6. 最終状態確定後にセッション保存
+  saveSession();debugLog('区間読込: '+sec.label);
+}
+
+function deleteSection(secId){
+  if(!currentVideoId||!allSections[currentVideoId])return;
+  var deleted=allSections[currentVideoId].find(function(s){return s.id===secId;});
+  allSections[currentVideoId]=allSections[currentVideoId].filter(function(s){return s.id!==secId;});
+  if(allSections[currentVideoId].length===0)delete allSections[currentVideoId];
+  saveSectionsStore();renderSections();
+  if(deleted)debugLog('区間削除: '+deleted.label);
+}
+
+/** v3: ステータス循環切替 (todo→working→done→todo) */
+function cycleSectionStatus(secId){
+  if(!currentVideoId||!allSections[currentVideoId])return;
+  allSections[currentVideoId].forEach(function(s){
+    if(s.id===secId){
+      var idx=STATUS_LIST.indexOf(s.status||'todo');
+      s.status=STATUS_LIST[(idx+1)%STATUS_LIST.length];
+    }
+  });
+  saveSectionsStore();renderSections();
+}
+
+/** v3: セクションデータを更新 */
+function updateSectionData(secId,updates){
+  if(!currentVideoId||!allSections[currentVideoId])return;
+  allSections[currentVideoId].forEach(function(s){
+    if(s.id===secId){
+      if(updates.label!==undefined)s.label=updates.label;
+      if(updates.note!==undefined)s.note=updates.note;
+      if(updates.speedPreset!==undefined)s.speedPreset=updates.speedPreset;
+      if(updates.status!==undefined)s.status=updates.status;
+    }
+  });
+  saveSectionsStore();
+}
+
+/** v3: 編集開始 */
+function startEditSection(secId){editingSectionId=secId;renderSections();}
+
+/** v3: 編集保存 */
+function saveEditSection(secId){
+  var lbl=$('edit-label-'+secId);
+  var note=$('edit-note-'+secId);
+  var spd=$('edit-speed-'+secId);
+  if(lbl&&note&&spd){
+    updateSectionData(secId,{
+      label:lbl.value.trim()||'(無題)',
+      note:note.value.trim(),
+      speedPreset:spd.value?parseFloat(spd.value):null
+    });
+  }
+  editingSectionId=null;renderSections();
+}
+
+/** v3: 編集キャンセル */
+function cancelEditSection(){editingSectionId=null;renderSections();}
+
+/** セクション一覧レンダリング（v3: status + edit 対応） */
+function renderSections(){
+  var $l=$('sec-list'),secs=getSections();
+  if(!secs.length){$l.innerHTML='<div class="empty-state"><div class="empty-state-text">保存区間なし</div></div>';return;}
+  $l.innerHTML='';
+  secs.forEach(function(s){
+    var isEditing=editingSectionId===s.id;
+    var item=document.createElement('div');item.className='sec-item';
+    if(!isEditing)item.onclick=function(){loadSection(s);};
+
+    // --- Top row: status + label + time + edit + delete ---
+    var top=document.createElement('div');top.className='sec-item-top';
+
+    // Status badge (クリックで循環)
+    var st=s.status||'todo';
+    var badge=document.createElement('span');
+    badge.className='sec-status sec-status-'+st;
+    badge.textContent=STATUS_LABELS[st]||st;
+    badge.title='クリックで切替: 未着手 → 練習中 → 完了';
+    badge.onclick=function(e){e.stopPropagation();cycleSectionStatus(s.id);};
+    top.appendChild(badge);
+
+    var lbl=document.createElement('div');lbl.className='sec-item-label';lbl.textContent=s.label;
+    top.appendChild(lbl);
+
+    var time=document.createElement('div');time.className='sec-item-time';
+    time.textContent=fmt(s.pointA)+' → '+fmt(s.pointB);
+    top.appendChild(time);
+
+    // Edit button
+    var editBtn=document.createElement('button');editBtn.type='button';editBtn.className='sec-item-edit';
+    editBtn.textContent='✎';editBtn.title='編集';
+    editBtn.onclick=function(e){e.stopPropagation();startEditSection(s.id);};
+    top.appendChild(editBtn);
+
+    var del=document.createElement('button');del.type='button';del.className='sec-item-del';del.textContent='✕';
+    del.onclick=function(e){e.stopPropagation();deleteSection(s.id);};
+    top.appendChild(del);
+
+    item.appendChild(top);
+
+    // --- Meta: speed ---
+    if(s.speedPreset!=null&&!isEditing){
+      var meta=document.createElement('div');meta.className='sec-item-meta';
+      meta.textContent='速度: '+s.speedPreset+'x';item.appendChild(meta);
+    }
+
+    // --- Note ---
+    if(s.note&&!isEditing){
+      var note=document.createElement('div');note.className='sec-item-note';
+      note.textContent='📝 '+s.note;note.title=s.note;item.appendChild(note);
+    }
+
+    // --- v3: Inline edit form ---
+    if(isEditing){
+      var form=document.createElement('div');form.className='sec-edit-form';
+
+      var r1=document.createElement('div');r1.className='sec-edit-row';
+      var eLbl=document.createElement('input');eLbl.type='text';eLbl.className='sec-edit-input';eLbl.id='edit-label-'+s.id;eLbl.value=s.label;eLbl.placeholder='区間名';eLbl.maxLength=40;
+      // v3fix: 編集の速度選択肢 — 0.25〜2.00の0.05刻み
+      var eSpd=document.createElement('select');eSpd.className='sec-edit-select';eSpd.id='edit-speed-'+s.id;
+      var eSpdOpt=document.createElement('option');eSpdOpt.value='';eSpdOpt.textContent='なし';eSpd.appendChild(eSpdOpt);
+      for(var sv=0.25;sv<=2.005;sv+=0.05){var rv=Math.round(sv*100)/100;var eo=document.createElement('option');eo.value=String(rv);eo.textContent=rv+'x';eSpd.appendChild(eo);}
+      eSpd.value=s.speedPreset!=null?String(s.speedPreset):'';
+      r1.appendChild(eLbl);r1.appendChild(eSpd);form.appendChild(r1);
+
+      var eNote=document.createElement('input');eNote.type='text';eNote.className='sec-edit-input';eNote.id='edit-note-'+s.id;eNote.value=s.note||'';eNote.placeholder='メモ';eNote.maxLength=200;eNote.style.marginBottom='4px';
+      form.appendChild(eNote);
+
+      var r3=document.createElement('div');r3.className='sec-edit-row';
+      var saveBtn=document.createElement('button');saveBtn.type='button';saveBtn.className='btn btn-s btn-a';saveBtn.textContent='保存';saveBtn.style.fontSize='11px';
+      saveBtn.onclick=function(e){e.stopPropagation();saveEditSection(s.id);};
+      var cancelBtn=document.createElement('button');cancelBtn.type='button';cancelBtn.className='btn btn-s';cancelBtn.textContent='戻る';cancelBtn.style.fontSize='11px';
+      cancelBtn.onclick=function(e){e.stopPropagation();cancelEditSection();};
+      r3.appendChild(saveBtn);r3.appendChild(cancelBtn);form.appendChild(r3);
+
+      // フォーム内クリックで loadSection が発火しないよう
+      form.onclick=function(e){e.stopPropagation();};
+      item.appendChild(form);
+    }
+
+    $l.appendChild(item);
+  });
+}
+renderSections();
+
+/* §17b BOOKMARKS */
+function saveBookmarksStore(){try{localStorage.setItem('ytp_bookmarks',JSON.stringify(bookmarkData));}catch(e){}}
+function updateBookmarkSaveButton(){
+  var canSave=!!currentVideoId&&controlMode!=='none';
+  var btn=$('btn-bk-quick');if(!btn)return;
+  btn.disabled=!canSave;
+  // ★ saved判定: 重複チェックと同じ条件で「今の状態がBK済みか」を判定
+  var BK_POS_TOL=0.5;
+  var curSpdN=normSpd(speed);
+  var isSaved=canSave&&bookmarkData.items.some(function(b){
+    if(b.videoId!==currentVideoId||normSpd(b.speed)!==curSpdN||b.loopActive!==loopActive)return false;
+    var aM=(b.pointA==null&&pointA==null)||(b.pointA!=null&&pointA!=null&&Math.abs(b.pointA-pointA)<BK_POS_TOL);
+    var bM=(b.pointB==null&&pointB==null)||(b.pointB!=null&&pointB!=null&&Math.abs(b.pointB-pointB)<BK_POS_TOL);
+    return aM&&bM;
+  });
+  btn.classList.toggle('saved',isSaved);
+}
+function quickBookmark(){
+  if(!currentVideoId)return;
+  var BK_POS_TOL=0.5;
+  var curSpdN=normSpd(speed);
+  var isDupe=bookmarkData.items.some(function(b){
+    if(b.videoId!==currentVideoId)return false;
+    if(normSpd(b.speed)!==curSpdN)return false;
+    if(b.loopActive!==loopActive)return false;
+    var aMatch=(b.pointA==null&&pointA==null)||(b.pointA!=null&&pointA!=null&&Math.abs(b.pointA-pointA)<BK_POS_TOL);
+    var bMatch=(b.pointB==null&&pointB==null)||(b.pointB!=null&&pointB!=null&&Math.abs(b.pointB-pointB)<BK_POS_TOL);
+    return aMatch&&bMatch;
+  });
+  if(isDupe){showInfo('同じ状態のブックマークがあります');return;}
+  var name='';var t=$title.textContent;if(t)name=t.replace('🎵 ','');if(!name)name=currentUrl||currentVideoId;
+  bookmarkData.items.unshift({id:generateId(),folderId:null,videoId:currentVideoId,url:currentUrl,title:name,speed:speed,pointA:pointA,pointB:pointB,loopActive:loopActive,note:'',createdAt:Date.now()});
+  saveBookmarksStore();renderBookmarks();updateBookmarkSaveButton();debugLog('★ BK追加: '+name);
+}
+function loadBookmark(bk){$urlIn.value=bk.url;loadVideoByUrl(bk.url);var att=0;var ri=setInterval(function(){att++;if(att>40){clearInterval(ri);return;}if(controlMode==='api'&&playerReady&&player){if(bk.speed!=null)changeSpeed(bk.speed,{skipSave:true});if(bk.pointA!=null)pointA=bk.pointA;if(bk.pointB!=null)pointB=bk.pointB;if(bk.loopActive&&canEnableLoop())loopActive=true;updateABUI();if(bk.pointA!=null){try{player.seekTo(bk.pointA,true);currentTime=bk.pointA;updateSeekbar();}catch(e){}}saveSession();clearInterval(ri);}else if(controlMode==='iframe'){clearInterval(ri);}},300);}
+function deleteBookmark(id){bookmarkData.items=bookmarkData.items.filter(function(b){return b.id!==id;});saveBookmarksStore();renderBookmarks();updateBookmarkSaveButton();}
+function moveBookmarkToFolder(bkId,fid){bookmarkData.items.forEach(function(b){if(b.id===bkId)b.folderId=fid||null;});saveBookmarksStore();renderBookmarks();}
+function addBookmarkFolder(){var name=$('bk-new-folder').value.trim();if(!name)return;if(bookmarkData.folders.some(function(f){return f.name===name;})){showWarn('同名フォルダあり');return;}bookmarkData.folders.push({id:generateId(),name:name});saveBookmarksStore();renderBookmarks();$('bk-new-folder').value='';}
+function deleteBookmarkFolder(fid){bookmarkData.items.forEach(function(b){if(b.folderId===fid)b.folderId=null;});bookmarkData.folders=bookmarkData.folders.filter(function(f){return f.id!==fid;});delete openFolders[fid];saveBookmarksStore();renderBookmarks();}
+function toggleBookmarkFolder(fid){openFolders[fid]=!openFolders[fid];renderBookmarks();}
+function createFolderMoveSelect(bk){var sel=document.createElement('select');sel.className='bk-item-move';var o0=document.createElement('option');o0.value='';o0.textContent='未分類';sel.appendChild(o0);bookmarkData.folders.forEach(function(f){var o=document.createElement('option');o.value=f.id;o.textContent=f.name;sel.appendChild(o);});sel.value=bk.folderId||'';sel.onclick=function(e){e.stopPropagation();};sel.onchange=function(e){e.stopPropagation();moveBookmarkToFolder(bk.id,sel.value);};return sel;}
+function createBookmarkItemEl(bk){var item=document.createElement('div');item.className='bk-item';item.onclick=function(){loadBookmark(bk);};var body=document.createElement('div');body.className='bk-item-body';var t=document.createElement('div');t.className='bk-item-title';t.textContent=bk.title;var m=document.createElement('div');m.className='bk-item-meta';var p=[];if(bk.speed&&bk.speed!==1)p.push(bk.speed+'x');if(bk.pointA!=null&&bk.pointB!=null)p.push(fmt(bk.pointA)+'→'+fmt(bk.pointB));m.textContent=p.join(' ')||bk.videoId;body.appendChild(t);body.appendChild(m);var act=document.createElement('div');act.className='bk-item-actions';if(bookmarkData.folders.length>0)act.appendChild(createFolderMoveSelect(bk));var del=document.createElement('button');del.type='button';del.className='bk-item-del';del.textContent='✕';del.onclick=function(e){e.stopPropagation();deleteBookmark(bk.id);};act.appendChild(del);item.appendChild(body);item.appendChild(act);return item;}
+function renderBookmarks(){var $l=$('bk-list'),items=bookmarkData.items,folders=bookmarkData.folders;if(!items.length&&!folders.length){$l.innerHTML='<div class="empty-state"><div class="empty-state-text">ブックマークなし</div></div>';return;}$l.innerHTML='';folders.forEach(function(folder){var fi=items.filter(function(b){return b.folderId===folder.id;});var isOpen=!!openFolders[folder.id];var head=document.createElement('div');head.className='bk-folder-head';head.onclick=function(){toggleBookmarkFolder(folder.id);};var icon=document.createElement('span');icon.className='bk-folder-icon'+(isOpen?' open':'');icon.textContent='▶';var fn=document.createElement('span');fn.className='bk-folder-name';fn.textContent='📁 '+folder.name;var cnt=document.createElement('span');cnt.className='bk-folder-cnt';cnt.textContent=fi.length;var fdel=document.createElement('button');fdel.type='button';fdel.className='bk-folder-del';fdel.textContent='✕';fdel.onclick=function(e){e.stopPropagation();deleteBookmarkFolder(folder.id);};head.appendChild(icon);head.appendChild(fn);head.appendChild(cnt);head.appendChild(fdel);$l.appendChild(head);if(isOpen&&fi.length){var c=document.createElement('div');c.className='bk-folder-items';fi.forEach(function(bk){c.appendChild(createBookmarkItemEl(bk));});$l.appendChild(c);}});var uf=items.filter(function(b){return!b.folderId;});if(uf.length){if(folders.length){var uh=document.createElement('div');uh.style.cssText='font-family:var(--mono);font-size:11px;color:var(--tx2);margin-top:6px;margin-bottom:3px';uh.textContent='未分類';$l.appendChild(uh);}uf.forEach(function(bk){$l.appendChild(createBookmarkItemEl(bk));});}}
+renderBookmarks();
+
+/* §18 KEYBOARD */
+document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT')return;if(controlMode!=='api'||!playerReady)return;switch(e.code){case'Space':e.preventDefault();togglePlay();break;case'ArrowLeft':e.preventDefault();seekBy(-5);break;case'ArrowRight':e.preventDefault();seekBy(5);break;case'KeyA':setPointA();break;case'KeyB':setPointB();break;case'KeyL':toggleLoop();break;}});
+$urlIn.addEventListener('keydown',function(e){if(e.key==='Enter')handleLoadClick();});
+$urlIn.addEventListener('input',updateUrlClearBtn);
+
+/* §19 INIT */
+debugLog('起動完了 — URLを貼り付けて再生');
+</script>
+</body>
+</html>
