@@ -26,7 +26,7 @@ body{padding:10px 14px 20px;max-width:1280px;margin:0 auto}
 .url-bar{display:flex;gap:8px;margin-bottom:10px}
 @media(min-width:1101px){.url-bar{margin-left:calc(240px + 12px);margin-right:calc(320px + 12px)}}
 .url-wrap{flex:1;position:relative;display:flex;align-items:center}
-.url-in{width:100%;background:var(--sf);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-family:var(--mono);font-size:14px;padding:10px 34px 10px 12px;outline:none}
+.url-in{width:100%;background:var(--sf);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-family:var(--mono);font-size:14px;padding:12px 34px 12px 12px;outline:none}
 .url-in:focus{border-color:var(--ac)}
 .url-in::placeholder{color:var(--tx2);opacity:.5}
 .url-clear{position:absolute;right:6px;background:none;border:none;color:var(--tx2);font-size:16px;cursor:pointer;padding:4px 6px;border-radius:4px;line-height:1;display:none;-webkit-tap-highlight-color:transparent}
@@ -46,17 +46,18 @@ body{padding:10px 14px 20px;max-width:1280px;margin:0 auto}
 @media(max-width:1100px){.col-scroll{max-height:none;overflow-y:visible}}
 
 /* §4 CARD & BUTTON */
-.card{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:12px 14px}
-.card-t{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--tx);margin-bottom:8px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;border:1px solid var(--bd);border-radius:8px;background:var(--sf2);color:var(--tx);font-family:var(--sans);font-size:14px;font-weight:600;padding:9px 13px;cursor:pointer;user-select:none;white-space:nowrap;min-height:42px;transition:all .1s;-webkit-tap-highlight-color:transparent}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:14px 14px}
+.card-t{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--tx);margin-bottom:8px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;border:1px solid var(--bd);border-radius:8px;background:var(--sf2);color:var(--tx);font-family:var(--sans);font-size:14px;font-weight:600;padding:12px 13px;cursor:pointer;user-select:none;white-space:nowrap;min-height:48px;transition:all .1s;-webkit-tap-highlight-color:transparent}
 .btn:hover:not(:disabled){background:#32323e;border-color:var(--ac)}
 .btn:active:not(:disabled){transform:scale(.96)}
 .btn:disabled{opacity:.3;cursor:not-allowed}
 .btn-a{background:var(--ac);border-color:var(--ac);color:#fff}
 .btn-a:hover:not(:disabled){background:var(--ac2);border-color:var(--ac2);color:#000}
-.btn-s{padding:6px 10px;font-size:13px;min-height:32px}
+.btn-s{padding:9px 10px;font-size:13px;min-height:38px}
 .row{display:flex;gap:5px;flex-wrap:wrap}
 .rowc{justify-content:center}
+#transport{flex-wrap:nowrap}
 
 /* §5 EMBED */
 #embed-wrap{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:10px;overflow:hidden;margin-bottom:8px}
@@ -88,7 +89,7 @@ body{padding:10px 14px 20px;max-width:1280px;margin:0 auto}
 .time-r{display:flex;justify-content:space-between;font-family:var(--mono);font-size:13px;color:var(--tx2);margin-bottom:6px}
 
 /* §7 SPEED */
-.sp-btn{flex:1;padding:7px 0;min-width:0;text-align:center;font-family:var(--mono);font-size:13px;font-weight:600;border-radius:6px;border:1px solid var(--bd);background:var(--sf2);color:var(--tx2);cursor:pointer;transition:all .12s}
+.sp-btn{flex:1;padding:10px 0;min-width:0;text-align:center;font-family:var(--mono);font-size:13px;font-weight:600;border-radius:6px;border:1px solid var(--bd);background:var(--sf2);color:var(--tx2);cursor:pointer;transition:all .12s}
 .sp-btn:hover{border-color:var(--ac);color:var(--tx)}
 .sp-btn.on{background:var(--ac);border-color:var(--ac);color:#fff}
 .sp-btn:disabled{opacity:.3;cursor:not-allowed}
@@ -100,15 +101,20 @@ body{padding:10px 14px 20px;max-width:1280px;margin:0 auto}
 .ab-warn{font-size:12px;color:var(--ac2);margin-top:4px}
 
 /* §9 TAP BPM */
-.tap-btn{width:100%;min-height:58px;font-size:22px;font-weight:700;font-family:var(--mono);border-radius:10px;background:var(--sf2);border:2px solid var(--bd);color:var(--tx);cursor:pointer;transition:all .08s;user-select:none;-webkit-tap-highlight-color:transparent}
+.tap-btn{width:100%;min-height:66px;font-size:22px;font-weight:700;font-family:var(--mono);border-radius:10px;background:var(--sf2);border:2px solid var(--bd);color:var(--tx);cursor:pointer;transition:all .08s;user-select:none;-webkit-tap-highlight-color:transparent}
 .tap-btn:active{background:var(--ac);border-color:var(--ac);color:#fff;transform:scale(.97)}
 
-/* §10 HISTORY */
-.hl{display:flex;flex-direction:column;gap:3px;max-height:180px;overflow-y:auto}
-.hi{display:flex;align-items:center;gap:6px;padding:7px 9px;background:var(--sf2);border-radius:6px;cursor:pointer;transition:background .1s}
+/* §10 COLLAPSIBLE PANELS */
+.panel-header{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+.panel-header:hover .panel-arrow{color:var(--ac)}
+.panel-arrow{font-size:11px;color:var(--tx2);transition:transform .15s;width:14px;text-align:center}
+.panel-arrow.open{transform:rotate(90deg)}
+.panel-card{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:10px 12px}
+.hl{display:flex;flex-direction:column;gap:3px;max-height:160px;overflow-y:auto;margin-top:6px}
+.hi{display:flex;align-items:center;gap:6px;padding:8px 8px;background:var(--sf2);border-radius:5px;cursor:pointer;transition:background .1s}
 .hi:hover{background:#32323e}
-.hi-t{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--mono);font-size:12px;color:var(--tx2)}
-.hi-d{background:none;border:none;color:var(--tx2);cursor:pointer;font-size:15px;padding:1px 3px;border-radius:3px;line-height:1;flex-shrink:0}
+.hi-t{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--mono);font-size:11px;color:var(--tx2)}
+.hi-d{background:none;border:none;color:var(--tx2);cursor:pointer;font-size:14px;padding:1px 3px;border-radius:3px;line-height:1;flex-shrink:0}
 .hi-d:hover{color:var(--red)}
 
 /* §11 MESSAGES */
@@ -125,10 +131,10 @@ body{padding:10px 14px 20px;max-width:1280px;margin:0 auto}
 
 /* §12 SECTIONS */
 .sec-form-row{display:flex;gap:6px;margin-bottom:6px}
-.sec-input{flex:1;background:var(--sf2);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:var(--mono);font-size:13px;padding:7px 9px;outline:none}
+.sec-input{flex:1;background:var(--sf2);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:var(--mono);font-size:13px;padding:10px 9px;outline:none}
 .sec-input:focus{border-color:var(--ac)}
 .sec-input::placeholder{color:var(--tx2);opacity:.5}
-.sec-textarea{width:100%;background:var(--sf2);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:var(--mono);font-size:13px;padding:7px 9px;outline:none;resize:vertical;min-height:34px;max-height:80px}
+.sec-textarea{width:100%;background:var(--sf2);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:var(--mono);font-size:13px;padding:10px 9px;outline:none;resize:vertical;min-height:38px;max-height:80px}
 .sec-textarea:focus{border-color:var(--ac)}
 .sec-textarea::placeholder{color:var(--tx2);opacity:.5}
 .sec-select{background:var(--sf2);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:var(--mono);font-size:13px;padding:6px 8px;outline:none;cursor:pointer}
@@ -136,7 +142,7 @@ body{padding:10px 14px 20px;max-width:1280px;margin:0 auto}
 
 /* Section speed nudge buttons */
 .sec-spd-bar{display:flex;align-items:center;gap:3px;margin:6px 0}
-.sec-spd-nudge{background:var(--sf2);border:1px solid var(--bd);border-radius:5px;color:var(--tx2);font-family:var(--mono);font-size:11px;font-weight:600;padding:4px 8px;cursor:pointer;transition:all .1s;-webkit-tap-highlight-color:transparent;user-select:none}
+.sec-spd-nudge{background:var(--sf2);border:1px solid var(--bd);border-radius:5px;color:var(--tx2);font-family:var(--mono);font-size:11px;font-weight:600;padding:7px 8px;cursor:pointer;transition:all .1s;-webkit-tap-highlight-color:transparent;user-select:none}
 .sec-spd-nudge:hover{border-color:var(--ac);color:var(--tx)}
 .sec-spd-nudge:active{transform:scale(.95)}
 .sec-spd-display{flex:1;text-align:center;font-family:var(--mono);font-size:15px;font-weight:700;color:var(--ac);cursor:pointer;user-select:none;border-radius:4px;transition:background .1s}
@@ -144,24 +150,24 @@ body{padding:10px 14px 20px;max-width:1280px;margin:0 auto}
 .sec-spd-display.none{color:var(--tx2);font-weight:400;font-size:13px}
 
 .sec-list{display:flex;flex-direction:column;gap:4px;max-height:280px;overflow-y:auto}
-.sec-item{background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;cursor:pointer;transition:all .12s}
+.sec-item{background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:10px 10px;cursor:pointer;transition:all .12s}
 .sec-item:hover{border-color:var(--pur);background:#2a2a32}
 .sec-item-top{display:flex;align-items:center;gap:5px}
 .sec-item-label{flex:1;font-family:var(--mono);font-size:13px;font-weight:600;color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sec-item-time{font-family:var(--mono);font-size:12px;color:var(--pur);white-space:nowrap}
-.sec-item-del{background:none;border:none;color:var(--tx2);cursor:pointer;font-size:14px;padding:1px 3px;border-radius:3px;line-height:1;flex-shrink:0}
+.sec-item-del{background:none;border:none;color:var(--tx2);cursor:pointer;font-size:16px;padding:4px 5px;border-radius:3px;line-height:1;flex-shrink:0}
 .sec-item-del:hover{color:var(--red)}
 .sec-item-meta{font-size:11px;color:var(--tx2);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sec-item-note{font-size:11px;color:var(--ac2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:italic}
 
 /* v3: Status badge */
-.sec-status{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;cursor:pointer;user-select:none;flex-shrink:0;line-height:1.2;border:1px solid transparent}
+.sec-status{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;padding:4px 7px;border-radius:4px;cursor:pointer;user-select:none;flex-shrink:0;line-height:1.2;border:1px solid transparent}
 .sec-status-todo{background:var(--sf);color:var(--tx2);border-color:var(--bd)}
 .sec-status-working{background:rgba(249,115,22,.12);color:var(--ac);border-color:rgba(249,115,22,.3)}
 .sec-status-done{background:rgba(52,211,153,.1);color:var(--grn);border-color:rgba(52,211,153,.25)}
 
 /* v3: Edit button */
-.sec-item-edit{background:none;border:none;color:var(--tx2);cursor:pointer;font-size:12px;padding:1px 3px;border-radius:3px;line-height:1;flex-shrink:0}
+.sec-item-edit{background:none;border:none;color:var(--tx2);cursor:pointer;font-size:14px;padding:4px 5px;border-radius:3px;line-height:1;flex-shrink:0}
 .sec-item-edit:hover{color:var(--blu)}
 
 /* v3: Inline edit form */
@@ -172,7 +178,7 @@ body{padding:10px 14px 20px;max-width:1280px;margin:0 auto}
 .sec-edit-select{background:var(--bg);border:1px solid var(--bd);border-radius:4px;color:var(--tx);font-family:var(--mono);font-size:11px;padding:4px 6px;outline:none;cursor:pointer}
 
 /* §13 BOOKMARKS */
-.bk-input{flex:1;background:var(--sf2);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:var(--mono);font-size:13px;padding:7px 9px;outline:none}
+.bk-input{flex:1;background:var(--sf2);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:var(--mono);font-size:13px;padding:10px 9px;outline:none}
 .bk-input:focus{border-color:var(--ac)}
 .bk-input::placeholder{color:var(--tx2);opacity:.5}
 .bk-list{display:flex;flex-direction:column;gap:6px;max-height:320px;overflow-y:auto}
@@ -185,7 +191,7 @@ body{padding:10px 14px 20px;max-width:1280px;margin:0 auto}
 .bk-folder-del{background:none;border:none;color:var(--tx2);cursor:pointer;font-size:13px;padding:1px 3px;border-radius:3px;line-height:1}
 .bk-folder-del:hover{color:var(--red)}
 .bk-folder-items{padding-left:10px;display:flex;flex-direction:column;gap:3px;margin-top:3px}
-.bk-item{display:flex;align-items:center;gap:6px;padding:7px 9px;background:var(--sf2);border:1px solid var(--bd);border-radius:6px;cursor:pointer;transition:all .1s}
+.bk-item{display:flex;align-items:center;gap:6px;padding:9px 9px;background:var(--sf2);border:1px solid var(--bd);border-radius:6px;cursor:pointer;transition:all .1s}
 .bk-item:hover{border-color:var(--ac);background:#2a2a32}
 .bk-item-body{flex:1;min-width:0}
 .bk-item-title{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -200,9 +206,43 @@ body{padding:10px 14px 20px;max-width:1280px;margin:0 auto}
 
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+
+/* §15 MOBILE SIZE BOOST */
+@media(max-width:768px){
+  body{padding:8px 10px 16px}
+  .btn{font-size:15px;padding:13px 14px;min-height:50px}
+  .btn-s{font-size:14px;padding:10px 12px;min-height:42px}
+  .card{padding:16px}
+  .card-t{font-size:13px}
+  .url-in{font-size:15px;padding:14px 36px 14px 12px}
+  .sp-btn{font-size:14px;padding:12px 0}
+  .sec-input,.sec-textarea,.sec-select{font-size:14px;padding:12px 10px}
+  .sec-spd-nudge{font-size:13px;padding:9px 10px}
+  .sec-spd-display{font-size:17px}
+  .sec-item{padding:12px}
+  .sec-item-label{font-size:14px}
+  .sec-item-time{font-size:13px}
+  .sec-item-meta,.sec-item-note{font-size:12px}
+  .sec-status{font-size:12px;padding:5px 9px}
+  .sec-item-edit{font-size:16px;padding:6px}
+  .sec-item-del{font-size:18px;padding:6px}
+  .time-r{font-size:14px}
+  .ab-info,.ab-warn{font-size:13px}
+  .tap-btn{font-size:24px;min-height:72px}
+  .hi{padding:10px 8px}
+  .hi-t{font-size:13px}
+  .bk-item{padding:11px 9px}
+  .bk-item-title{font-size:13px}
+  .bk-item-meta{font-size:12px}
+  .bk-input{font-size:14px;padding:12px 10px}
+  .seek-flag-label{font-size:12px}
+  .msg-err,.msg-info,.msg-warn{font-size:14px;padding:10px 14px}
+}
 /* Empty state */
 .empty-state{display:flex;align-items:center;justify-content:center;padding:14px 8px;opacity:.4}
 .empty-state-text{font-family:var(--mono);font-size:10px;color:var(--tx2);letter-spacing:.5px}
+
+
 </style>
 </head>
 <body>
@@ -237,17 +277,31 @@ body{padding:10px 14px 20px;max-width:1280px;margin:0 auto}
 
   <!-- LEFT -->
   <div class="stack col-scroll">
-    <div class="card" id="card-bk">
-      <div class="card-t">★ ブックマーク</div>
-      <div class="bk-add-folder" style="margin-bottom:8px">
-        <input type="text" class="bk-input" id="bk-new-folder" placeholder="新しいフォルダ名" maxlength="30">
-        <button type="button" class="btn btn-s" onclick="addBookmarkFolder()">📁+</button>
+    <!-- Bookmark: 折りたたみ可（デフォルト開） -->
+    <div class="panel-card" id="card-bk">
+      <div class="panel-header" onclick="toggleBkPanel()">
+        <span class="panel-arrow open" id="bk-arrow">▶</span>
+        <span style="font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--tx)">★ ブックマーク</span>
+        <span style="font-family:var(--mono);font-size:9px;color:var(--tx2);opacity:.6;margin-left:auto" id="bk-count"></span>
       </div>
-      <div class="bk-list" id="bk-list"><div class="empty-state"><div class="empty-state-text">ブックマークなし</div></div></div>
+      <div id="bk-body">
+        <div class="bk-add-folder" style="margin:8px 0">
+          <input type="text" class="bk-input" id="bk-new-folder" placeholder="新しいフォルダ名" maxlength="30">
+          <button type="button" class="btn btn-s" onclick="addBookmarkFolder()">📁+</button>
+        </div>
+        <div class="bk-list" id="bk-list"><div class="empty-state"><div class="empty-state-text">ブックマークなし</div></div></div>
+      </div>
     </div>
-    <div class="card">
-      <div class="card-t">履歴 <span style="font-weight:400;opacity:.7">最新8件まで</span></div>
-      <div class="hl" id="hist-list"><div class="empty-state"><div class="empty-state-text">履歴なし</div></div></div>
+    <!-- History: 折りたたみ可（デフォルト閉） -->
+    <div class="panel-card" id="card-hist">
+      <div class="panel-header" onclick="toggleHistoryPanel()">
+        <span class="panel-arrow" id="hist-arrow">▶</span>
+        <span style="font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--tx2)">履歴</span>
+        <span style="font-family:var(--mono);font-size:9px;color:var(--tx2);opacity:.6;margin-left:auto" id="hist-count"></span>
+      </div>
+      <div id="hist-body" style="display:none">
+        <div class="hl" id="hist-list"><div class="empty-state"><div class="empty-state-text">履歴なし</div></div></div>
+      </div>
     </div>
   </div>
 
@@ -272,35 +326,23 @@ body{padding:10px 14px 20px;max-width:1280px;margin:0 auto}
         <div class="seek-flag seek-flag-b" id="flag-b" style="display:none"><div class="seek-flag-pole"></div><div class="seek-flag-label" id="flag-b-label">B 0:00</div></div>
       </div>
       <div class="time-r"><span id="t-cur">0:00</span><span id="t-dur">0:00</span></div>
-      <div class="row rowc" id="transport" style="gap:4px">
-        <button type="button" class="btn btn-s" disabled onclick="seekBy(-10)">-10</button>
-        <button type="button" class="btn btn-s" disabled onclick="seekBy(-5)">-5</button>
-        <button type="button" class="btn btn-s" disabled onclick="seekBy(-2)">-2</button>
-        <button type="button" class="btn btn-a" disabled onclick="togglePlay()" id="btn-play" style="min-width:50px">▶</button>
-        <button type="button" class="btn btn-s" disabled onclick="seekBy(2)">+2</button>
-        <button type="button" class="btn btn-s" disabled onclick="seekBy(5)">+5</button>
-        <button type="button" class="btn btn-s" disabled onclick="seekBy(10)">+10</button>
+      <div class="row rowc" id="transport" style="gap:6px">
+        <button type="button" class="btn btn-s" disabled onclick="seekBy(-10)" style="flex:1">-10</button>
+        <button type="button" class="btn btn-s" disabled onclick="seekBy(-5)" style="flex:1">-5</button>
+        <button type="button" class="btn btn-s" disabled onclick="seekBy(-2)" style="flex:1">-2</button>
+        <button type="button" class="btn btn-a" disabled onclick="togglePlay()" id="btn-play" style="flex:1;min-width:50px">▶</button>
+        <button type="button" class="btn btn-s" disabled onclick="seekBy(2)" style="flex:1">+2</button>
+        <button type="button" class="btn btn-s" disabled onclick="seekBy(5)" style="flex:1">+5</button>
+        <button type="button" class="btn btn-s" disabled onclick="seekBy(10)" style="flex:1">+10</button>
       </div>
     </div>
   </div>
 
   <!-- RIGHT -->
   <div class="stack col-scroll">
-    <div class="card" id="card-speed">
-      <div class="card-t">再生速度</div>
-      <div class="row" style="align-items:center;margin-bottom:6px">
-        <button type="button" class="btn btn-s" disabled id="btn-spd-down2" onclick="nudgeSpeed(-0.1)">−0.1</button>
-        <button type="button" class="btn btn-s" disabled id="btn-spd-down" onclick="nudgeSpeed(-0.05)">−.05</button>
-        <div id="speed-display" style="flex:1;text-align:center;font-family:var(--mono);font-size:18px;font-weight:700;color:var(--ac)">1x</div>
-        <button type="button" class="btn btn-s" disabled id="btn-spd-up" onclick="nudgeSpeed(0.05)">+.05</button>
-        <button type="button" class="btn btn-s" disabled id="btn-spd-up2" onclick="nudgeSpeed(0.1)">+0.1</button>
-      </div>
-      <div class="row rowc" id="speed-row"></div>
-    </div>
-
     <div class="card" id="card-ab">
       <div class="card-t">A-B ループ</div>
-      <div class="row">
+      <div class="row rowc">
         <button type="button" class="btn btn-s" disabled id="btn-a" onclick="setPointA()">A: —</button>
         <button type="button" class="btn btn-s" disabled id="btn-b" onclick="setPointB()">B: —</button>
         <button type="button" class="btn btn-s" disabled id="btn-loop" onclick="toggleLoop()">LOOP</button>
@@ -316,7 +358,6 @@ body{padding:10px 14px 20px;max-width:1280px;margin:0 auto}
       <input type="text" class="sec-input" id="sec-label" placeholder="区間名（例: イントロ）" maxlength="40" style="width:100%;margin-bottom:6px">
       <textarea class="sec-textarea" id="sec-note" placeholder="メモ（任意）" maxlength="200" rows="1"></textarea>
       <div class="sec-spd-bar">
-        <button type="button" class="sec-spd-nudge" onclick="secSpdSetNone()" title="速度指定なし">×</button>
         <button type="button" class="sec-spd-nudge" onclick="secSpdNudge(-0.1)">−.1</button>
         <button type="button" class="sec-spd-nudge" onclick="secSpdNudge(-0.05)">−.05</button>
         <div class="sec-spd-display" id="sec-spd-display" onclick="secSpdSetCurrent()" title="現在速度をセット">1x</div>
@@ -324,7 +365,7 @@ body{padding:10px 14px 20px;max-width:1280px;margin:0 auto}
         <button type="button" class="sec-spd-nudge" onclick="secSpdNudge(0.1)">+.1</button>
       </div>
       <input type="hidden" id="sec-speed-preset" value="">
-      <div style="display:flex;align-items:center;gap:8px">
+      <div style="display:flex;justify-content:center;margin-top:6px">
         <button type="button" class="btn btn-s btn-a" id="btn-sec-save" disabled onclick="saveSection()">💾 区間を保存</button>
       </div>
     </div>
@@ -333,6 +374,19 @@ body{padding:10px 14px 20px;max-width:1280px;margin:0 auto}
     <div class="card" id="card-sec-list">
       <div class="card-t">保存済み区間</div>
       <div class="sec-list" id="sec-list"><div class="empty-state"><div class="empty-state-text">保存区間なし</div></div></div>
+    </div>
+
+    <!-- Speed -->
+    <div class="card" id="card-speed">
+      <div class="card-t">再生速度</div>
+      <div class="row rowc" style="align-items:center;margin-bottom:6px">
+        <button type="button" class="btn btn-s" disabled id="btn-spd-down2" onclick="nudgeSpeed(-0.1)">−0.1</button>
+        <button type="button" class="btn btn-s" disabled id="btn-spd-down" onclick="nudgeSpeed(-0.05)">−.05</button>
+        <div id="speed-display" style="flex:1;text-align:center;font-family:var(--mono);font-size:18px;font-weight:700;color:var(--ac)">1x</div>
+        <button type="button" class="btn btn-s" disabled id="btn-spd-up" onclick="nudgeSpeed(0.05)">+.05</button>
+        <button type="button" class="btn btn-s" disabled id="btn-spd-up2" onclick="nudgeSpeed(0.1)">+0.1</button>
+      </div>
+      <div class="row rowc" id="speed-row"></div>
     </div>
 
     <div class="card">
@@ -576,7 +630,23 @@ function updateHistoryTitle(id,t){videoHistory.forEach(function(h){if(h.id===id)
 function updateHistoryPosition(id,pos){videoHistory.forEach(function(h){if(h.id===id)h.lastPos=pos;});saveHistory();}
 function deleteHistoryItem(url){videoHistory=videoHistory.filter(function(h){return h.url!==url;});saveHistory();renderHistory();}
 function saveHistory(){try{localStorage.setItem('ytp_hist',JSON.stringify(videoHistory));}catch(e){}}
-function renderHistory(){var $l=$('hist-list');if(!videoHistory.length){$l.innerHTML='<div class="empty-state"><div class="empty-state-text">履歴なし</div></div>';return;}$l.innerHTML='';videoHistory.forEach(function(h){var item=document.createElement('div');item.className='hi';item.onclick=function(){$urlIn.value=h.url;loadVideoByUrl(h.url);};var txt=document.createElement('div');txt.className='hi-t';txt.textContent=(h.title||h.url||h.id)+(h.lastPos>0?'  ('+fmt(h.lastPos)+')':'');var del=document.createElement('button');del.type='button';del.className='hi-d';del.textContent='✕';del.onclick=function(e){e.stopPropagation();deleteHistoryItem(h.url);};item.appendChild(txt);item.appendChild(del);$l.appendChild(item);});}
+var historyOpen=false;
+function toggleHistoryPanel(){
+  historyOpen=!historyOpen;
+  $('hist-body').style.display=historyOpen?'block':'none';
+  $('hist-arrow').classList.toggle('open',historyOpen);
+}
+var bkOpen=true;
+function toggleBkPanel(){
+  bkOpen=!bkOpen;
+  $('bk-body').style.display=bkOpen?'block':'none';
+  $('bk-arrow').classList.toggle('open',bkOpen);
+}
+function renderHistory(){
+  var $l=$('hist-list');var $cnt=$('hist-count');
+  if($cnt)$cnt.textContent=videoHistory.length?videoHistory.length+'件':'';
+  if(!videoHistory.length){$l.innerHTML='<div class="empty-state"><div class="empty-state-text">履歴なし</div></div>';return;}
+  $l.innerHTML='';videoHistory.forEach(function(h){var item=document.createElement('div');item.className='hi';item.onclick=function(){$urlIn.value=h.url;loadVideoByUrl(h.url);};var txt=document.createElement('div');txt.className='hi-t';txt.textContent=(h.title||h.url||h.id)+(h.lastPos>0?' ('+fmt(h.lastPos)+')':'');var del=document.createElement('button');del.type='button';del.className='hi-d';del.textContent='✕';del.onclick=function(e){e.stopPropagation();deleteHistoryItem(h.url);};item.appendChild(txt);item.appendChild(del);$l.appendChild(item);});}
 renderHistory();
 
 /* §15 SESSION */
@@ -710,11 +780,13 @@ function loadSection(sec){
 
 function deleteSection(secId){
   if(!currentVideoId||!allSections[currentVideoId])return;
-  var deleted=allSections[currentVideoId].find(function(s){return s.id===secId;});
+  var target=allSections[currentVideoId].find(function(s){return s.id===secId;});
+  if(!target)return;
+  if(!confirm('「'+target.label+'」を削除しますか？'))return;
   allSections[currentVideoId]=allSections[currentVideoId].filter(function(s){return s.id!==secId;});
   if(allSections[currentVideoId].length===0)delete allSections[currentVideoId];
   saveSectionsStore();renderSections();
-  if(deleted)debugLog('区間削除: '+deleted.label);
+  debugLog('区間削除: '+target.label);
 }
 
 /** v3: ステータス循環切替 (todo→working→done→todo) */
@@ -892,7 +964,7 @@ function deleteBookmarkFolder(fid){bookmarkData.items.forEach(function(b){if(b.f
 function toggleBookmarkFolder(fid){openFolders[fid]=!openFolders[fid];renderBookmarks();}
 function createFolderMoveSelect(bk){var sel=document.createElement('select');sel.className='bk-item-move';var o0=document.createElement('option');o0.value='';o0.textContent='未分類';sel.appendChild(o0);bookmarkData.folders.forEach(function(f){var o=document.createElement('option');o.value=f.id;o.textContent=f.name;sel.appendChild(o);});sel.value=bk.folderId||'';sel.onclick=function(e){e.stopPropagation();};sel.onchange=function(e){e.stopPropagation();moveBookmarkToFolder(bk.id,sel.value);};return sel;}
 function createBookmarkItemEl(bk){var item=document.createElement('div');item.className='bk-item';item.onclick=function(){loadBookmark(bk);};var body=document.createElement('div');body.className='bk-item-body';var t=document.createElement('div');t.className='bk-item-title';t.textContent=bk.title;var m=document.createElement('div');m.className='bk-item-meta';var p=[];if(bk.speed&&bk.speed!==1)p.push(bk.speed+'x');if(bk.pointA!=null&&bk.pointB!=null)p.push(fmt(bk.pointA)+'→'+fmt(bk.pointB));m.textContent=p.join(' ')||bk.videoId;body.appendChild(t);body.appendChild(m);var act=document.createElement('div');act.className='bk-item-actions';if(bookmarkData.folders.length>0)act.appendChild(createFolderMoveSelect(bk));var del=document.createElement('button');del.type='button';del.className='bk-item-del';del.textContent='✕';del.onclick=function(e){e.stopPropagation();deleteBookmark(bk.id);};act.appendChild(del);item.appendChild(body);item.appendChild(act);return item;}
-function renderBookmarks(){var $l=$('bk-list'),items=bookmarkData.items,folders=bookmarkData.folders;if(!items.length&&!folders.length){$l.innerHTML='<div class="empty-state"><div class="empty-state-text">ブックマークなし</div></div>';return;}$l.innerHTML='';folders.forEach(function(folder){var fi=items.filter(function(b){return b.folderId===folder.id;});var isOpen=!!openFolders[folder.id];var head=document.createElement('div');head.className='bk-folder-head';head.onclick=function(){toggleBookmarkFolder(folder.id);};var icon=document.createElement('span');icon.className='bk-folder-icon'+(isOpen?' open':'');icon.textContent='▶';var fn=document.createElement('span');fn.className='bk-folder-name';fn.textContent='📁 '+folder.name;var cnt=document.createElement('span');cnt.className='bk-folder-cnt';cnt.textContent=fi.length;var fdel=document.createElement('button');fdel.type='button';fdel.className='bk-folder-del';fdel.textContent='✕';fdel.onclick=function(e){e.stopPropagation();deleteBookmarkFolder(folder.id);};head.appendChild(icon);head.appendChild(fn);head.appendChild(cnt);head.appendChild(fdel);$l.appendChild(head);if(isOpen&&fi.length){var c=document.createElement('div');c.className='bk-folder-items';fi.forEach(function(bk){c.appendChild(createBookmarkItemEl(bk));});$l.appendChild(c);}});var uf=items.filter(function(b){return!b.folderId;});if(uf.length){if(folders.length){var uh=document.createElement('div');uh.style.cssText='font-family:var(--mono);font-size:11px;color:var(--tx2);margin-top:6px;margin-bottom:3px';uh.textContent='未分類';$l.appendChild(uh);}uf.forEach(function(bk){$l.appendChild(createBookmarkItemEl(bk));});}}
+function renderBookmarks(){var $l=$('bk-list'),items=bookmarkData.items,folders=bookmarkData.folders;var $cnt=$('bk-count');if($cnt)$cnt.textContent=items.length?items.length+'件':'';if(!items.length&&!folders.length){$l.innerHTML='<div class="empty-state"><div class="empty-state-text">ブックマークなし</div></div>';return;}$l.innerHTML='';folders.forEach(function(folder){var fi=items.filter(function(b){return b.folderId===folder.id;});var isOpen=!!openFolders[folder.id];var head=document.createElement('div');head.className='bk-folder-head';head.onclick=function(){toggleBookmarkFolder(folder.id);};var icon=document.createElement('span');icon.className='bk-folder-icon'+(isOpen?' open':'');icon.textContent='▶';var fn=document.createElement('span');fn.className='bk-folder-name';fn.textContent='📁 '+folder.name;var cnt=document.createElement('span');cnt.className='bk-folder-cnt';cnt.textContent=fi.length;var fdel=document.createElement('button');fdel.type='button';fdel.className='bk-folder-del';fdel.textContent='✕';fdel.onclick=function(e){e.stopPropagation();deleteBookmarkFolder(folder.id);};head.appendChild(icon);head.appendChild(fn);head.appendChild(cnt);head.appendChild(fdel);$l.appendChild(head);if(isOpen&&fi.length){var c=document.createElement('div');c.className='bk-folder-items';fi.forEach(function(bk){c.appendChild(createBookmarkItemEl(bk));});$l.appendChild(c);}});var uf=items.filter(function(b){return!b.folderId;});if(uf.length){if(folders.length){var uh=document.createElement('div');uh.style.cssText='font-family:var(--mono);font-size:11px;color:var(--tx2);margin-top:6px;margin-bottom:3px';uh.textContent='未分類';$l.appendChild(uh);}uf.forEach(function(bk){$l.appendChild(createBookmarkItemEl(bk));});}}
 renderBookmarks();
 
 /* §18 KEYBOARD */
